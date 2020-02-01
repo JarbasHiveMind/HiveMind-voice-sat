@@ -25,6 +25,7 @@ from voice_satellite.speech.hotword_factory import HotWordFactory
 from voice_satellite.speech.mic import MutableMicrophone, \
     ResponsiveRecognizer
 from voice_satellite.speech.stt import STTFactory
+from voice_satellite.configuration import CONFIGURATION
 
 if sys.version_info[0] < 3:
     from Queue import Queue, Empty
@@ -34,27 +35,7 @@ else:
 from jarbas_utils.log import LOG
 
 
-conf = {
-    "listener": {
-        "sample_rate": 16000,
-        "channels": 1,
-        "record_wake_words": False,
-        "record_utterances": False,
-        "phoneme_duration": 120,
-        "multiplier": 1.0,
-        "energy_ratio": 1.5,
-        "wake_word": "hey mycroft",
-        "stand_up_word": "wake up"
-    },
-    "stt": {
-        "deepspeech_server": {
-            "uri": "http://localhost:8080/stt"
-        },
-        "kaldi": {
-            "uri": "http://localhost:8080/client/dynamic/recognize"
-        }
-    }
-}
+
 
 
 class AudioProducer(Thread):
@@ -159,7 +140,7 @@ class AudioConsumer(Thread):
         self.emitter.emit("recognizer_loop:wakeword", payload)
 
         if self._audio_length(audio) < self.MIN_AUDIO_SIZE:
-            LOG.error("[ERROR] Audio too short to be processed")
+            LOG.error("Audio too short to be processed")
         else:
             transcription = self.transcribe(audio)
             if transcription:
@@ -174,27 +155,27 @@ class AudioConsumer(Thread):
         try:
             # Invoke the STT engine on the audio clip
             text = self.stt.execute(audio).lower().strip()
-            LOG.info("[INFO] STT: " + text)
+            LOG.info("STT: " + text)
             return text
         except sr.RequestError as e:
             LOG.error(
-                "[ERROR] Could not request Speech Recognition {0}".format(e))
+                "Could not request Speech Recognition {0}".format(e))
         except ConnectionError as e:
-            LOG.error("[ERROR] Connection Error: {0}".format(e))
+            LOG.error("Connection Error: {0}".format(e))
 
             self.emitter.emit("recognizer_loop:no_internet")
         except HTTPError as e:
-            LOG.error("[ERROR] " + e.__class__.__name__ + ': ' + str(e))
+            LOG.error(e.__class__.__name__ + ': ' + str(e))
         except RequestException as e:
-            LOG.error("[ERROR] " + e.__class__.__name__ + ': ' + str(e))
+            LOG.error(e.__class__.__name__ + ': ' + str(e))
         except Exception as e:
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
             if isinstance(e, IndexError) or isinstance(e, UnknownValueError) :
-                LOG.error('[ERROR] no words were transcribed')
+                LOG.error('no words were transcribed')
             else:
                 LOG.exception(e)
             LOG.error(
-                "[ERROR] Speech Recognition could not understand audio")
+                "Speech Recognition could not understand audio")
             return None
         dialog_name = 'not connected to the internet'
         self.emitter.emit('speak', {'utterance': dialog_name})
@@ -227,10 +208,10 @@ class RecognizerLoop(EventEmitter):
         """
             Load configuration parameters from configuration
         """
-        config = config or conf
+        config = config or CONFIGURATION
         self.config_core = config
         self._config_hash = hash(str(config))
-        self.lang = config.get('lang')
+        self.lang = config.get('lang', "en-us")
         self.config = config.get('listener')
         rate = self.config.get('sample_rate')
         device_index = self.config.get('device_index')
@@ -249,7 +230,7 @@ class RecognizerLoop(EventEmitter):
         self.state = RecognizerLoopState()
 
     def create_hot_word_engines(self):
-        LOG.info("[INFO] creating secondary hotword engines")
+        LOG.info("creating secondary hotword engines")
         hot_words = self.config_core.get("hotwords", {})
         for word in hot_words:
             data = hot_words[word]
@@ -267,7 +248,7 @@ class RecognizerLoop(EventEmitter):
 
     def create_wake_word_recognizer(self):
         # Create a local recognizer to hear the wakeup word, e.g. 'Hey Mycroft'
-        LOG.info("[INFO] creating main wake word engine")
+        LOG.info("creating main wake word engine")
         word = self.config.get("wake_word", "hey mycroft")
         # TODO remove this, only for server settings compatibility
         phonemes = self.config.get("phonemes")
@@ -285,7 +266,7 @@ class RecognizerLoop(EventEmitter):
         return HotWordFactory.create_hotword(word, config, self.lang)
 
     def create_wakeup_recognizer(self):
-        LOG.info("[INFO] creating stand up word engine")
+        LOG.info("creating stand up word engine")
         word = self.config.get("stand_up_word", "wake up")
         return HotWordFactory.create_hotword(word, lang=self.lang)
 

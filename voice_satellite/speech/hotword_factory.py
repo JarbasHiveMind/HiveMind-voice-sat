@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
 import os
 import sys
 import tempfile
@@ -160,7 +159,7 @@ class PreciseHotword(HotWordEngine):
         model_name, model_path = self.get_model_info()
 
         exe_file = self.find_download_exe()
-        LOG.info('[INFO] Found precise executable: ' + exe_file)
+        LOG.info('Found precise executable: ' + exe_file)
         self.update_model(model_name, model_path)
 
         args = [exe_file, model_path, '1024']
@@ -232,11 +231,11 @@ class PreciseHotword(HotWordEngine):
             from urllib.request import urlopen
         else:
             from urllib2 import urlopen
-        LOG.info('[INFO] Downloading: ' + url)
+        LOG.info('Downloading: ' + url)
         req = urlopen(url)
         with open(filename, 'wb') as fp:
             shutil.copyfileobj(req, fp)
-        LOG.info('[INFO] Download complete.')
+        LOG.info('Download complete.')
 
     def update_model(self, name, file_name):
         if isfile(file_name):
@@ -298,7 +297,7 @@ class HotWordFactory(object):
 
     @staticmethod
     def create_hotword(hotword="hey mycroft", config=None, lang="en-us"):
-        LOG.info("[INFO] creating " + hotword)
+        LOG.info("creating " + hotword)
         if not config:
             config = conf.get("hotwords", {})
         module = config.get(hotword).get("module", "pocketsphinx")
@@ -307,6 +306,5 @@ class HotWordFactory(object):
         try:
             return clazz(hotword, config, lang=lang)
         except Exception:
-            LOG.warning(
-                '[WARNING] Could not create hotword. Falling back to default.')
+            LOG.warning('Could not create hotword. Falling back to default.')
             return HotWordFactory.CLASSES['pocketsphinx']()

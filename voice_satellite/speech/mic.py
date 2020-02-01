@@ -369,7 +369,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             if check_for_signal('buttonPress'):
                 # Signal is still here, assume it was intended to
                 # begin recording
-                LOG.info("[INFO] Button Pressed, wakeword not needed")
+                LOG.info("Button Pressed, wakeword not needed")
                 return True
 
         return False
@@ -521,7 +521,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                     self.hot_word_engines[hotword]
             found = engine.found_wake_word(audio_data)
             if found:
-                LOG.info("[INFO] Hot Word: " + hotword)
+                LOG.info("Hot Word: " + hotword)
                 # If enabled, play a wave file with a short sound to audibly
                 # indicate hotword was detected.
                 if ding:
@@ -587,7 +587,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         #       speech is detected, but there is no code to actually do that.
         self.adjust_for_ambient_noise(source, 1.0)
 
-        LOG.info("[INFO] Waiting for wake word...")
+        LOG.info("Waiting for wake word...")
         self._wait_until_wake_word(source, sec_per_buffer, emitter)
         if self._stop_signaled:
             return
@@ -598,7 +598,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         audio_data = self._create_audio_data(frame_data, source)
         emitter.emit("recognizer_loop:record_end")
         if self.save_utterances:
-            LOG.info("[INFO] Saving utterance")
+            LOG.info("Saving utterance")
             stamp = str(datetime.datetime.now())
             filename = "/tmp/mycroft_utterance%s.wav" % stamp
             with open(filename, 'wb') as filea:
