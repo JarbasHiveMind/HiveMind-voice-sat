@@ -35,9 +35,6 @@ else:
 from jarbas_utils.log import LOG
 
 
-
-
-
 class AudioProducer(Thread):
     """
     AudioProducer

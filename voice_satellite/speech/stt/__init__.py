@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import json
 import re
+import json
 from abc import ABCMeta, abstractmethod
-from requests import post
+from requests import post, put
 from speech_recognition import Recognizer
 from queue import Queue
 from threading import Thread
+from os.path import join, isdir, expanduser
+
 from jarbas_utils.log import LOG
 from jarbas_hive_mind.configuration import CONFIGURATION
 
@@ -43,6 +45,72 @@ class STT(metaclass=ABCMeta):
 
     @abstractmethod
     def execute(self, audio, language=None):
+        pass
+
+
+class StreamThread(Thread, metaclass=ABCMeta):
+    """
+        ABC class to be used with StreamingSTT class implementations.
+    """
+
+    def __init__(self, queue, language):
+        super().__init__()
+        self.language = language
+        self.queue = queue
+        self.text = None
+
+    def _get_data(self):
+        while True:
+            d = self.queue.get()
+            if d is None:
+                break
+            yield d
+            self.queue.task_done()
+
+    def run(self):
+        return self.handle_audio_stream(self._get_data(), self.language)
+
+    @abstractmethod
+    def handle_audio_stream(self, audio, language):
+        pass
+
+
+class StreamingSTT(STT, metaclass=ABCMeta):
+    """
+        ABC class for threaded streaming STT implemenations.
+    """
+    def __init__(self):
+        super().__init__()
+        self.stream = None
+        self.can_stream = True
+
+    def stream_start(self, language=None):
+        self.stream_stop()
+        language = language or self.lang
+        self.queue = Queue()
+        self.stream = self.create_streaming_thread()
+        self.stream.start()
+
+    def stream_data(self, data):
+        self.queue.put(data)
+
+    def stream_stop(self):
+        if self.stream is not None:
+            self.queue.put(None)
+            self.stream.join()
+
+            text = self.stream.text
+
+            self.stream = None
+            self.queue = None
+            return text
+        return None
+
+    def execute(self, audio, language=None):
+        return self.stream_stop()
+
+    @abstractmethod
+    def create_streaming_thread(self):
         pass
 
 
@@ -184,6 +252,66 @@ class YandexSTT(TokenSTT):
                     response.status_code, response.text))
 
 
+class DeepSpeechSTT(STT):
+    """
+    Local STT interface for the deepspeech
+    """
+    def __init__(self):
+        global np
+        super(DeepSpeechSTT, self).__init__()
+        from deepspeech import Model
+        import numpy as np
+        base_path = expanduser(self.config.get("model_path", "~/deepspeech-0.6.1-models"))
+        if not isdir(base_path):
+            raise ValueError("deepspeech model not found at {path}".format(path=base_path))
+        lm = join(base_path, "lm.binary")
+        trie = join(base_path, "trie")
+        pb = join(base_path, "output_graph.pb")
+
+        BEAM_WIDTH = self.config.get("beam_width", 500)
+        LM_ALPHA =  self.config.get("lm_alpha", 0.75)
+        LM_BETA =  self.config.get("lm_beta", 1.85)
+
+        self.ds = Model(pb, BEAM_WIDTH)
+        self.ds.enableDecoderWithLM(lm, trie, LM_ALPHA, LM_BETA)
+
+    def execute(self, audio, language=None):
+        audio = np.frombuffer(audio.get_wav_data(), dtype=np.int16)
+        return self.ds.stt(audio)
+
+
+class DeepSpeechStreamThread(StreamThread):
+    def __init__(self, queue, language, ds):
+        super().__init__(queue, language)
+        self.ds = ds
+        self.ds_stream = self.ds.createStream()
+
+    def handle_audio_stream(self, audio, language):
+        for a in audio:
+            self.ds.feedAudioContent(self.ds_stream, np.frombuffer(a, np.int16))
+        # Expensive
+        # https://deepspeech.readthedocs.io/en/latest/Python-API.html#native_client.python.Model.intermediateDecode
+        # self.text = self.ds.intermediateDecode(self.ds_stream)
+
+    def finish_stream(self):
+        self.text = self.ds.finishStream(self.ds_stream)
+
+
+class DeepSpeechStreamingSTT(DeepSpeechSTT, StreamingSTT):
+    def create_streaming_thread(self):
+        self.queue = Queue()
+        return DeepSpeechStreamThread(
+            self.queue,
+            self.lang,
+            self.ds
+        )
+
+    def execute(self, audio, language=None):
+        if self.stream:
+            self.stream.finish_stream()
+        return self.stream_stop()
+
+
 class DeepSpeechServerSTT(STT):
     """
         STT interface for the deepspeech-server:
@@ -201,73 +329,7 @@ class DeepSpeechServerSTT(STT):
         return response.text
 
 
-class StreamThread(Thread, metaclass=ABCMeta):
-    """
-        ABC class to be used with StreamingSTT class implementations.
-    """
-
-    def __init__(self, queue, language):
-        super().__init__()
-        self.language = language
-        self.queue = queue
-        self.text = None
-
-    def _get_data(self):
-        while True:
-            d = self.queue.get()
-            if d is None:
-                break
-            yield d
-            self.queue.task_done()
-
-    def run(self):
-        return self.handle_audio_stream(self._get_data(), self.language)
-
-    @abstractmethod
-    def handle_audio_stream(self, audio, language):
-        pass
-
-
-class StreamingSTT(STT, metaclass=ABCMeta):
-    """
-        ABC class for threaded streaming STT implemenations.
-    """
-    def __init__(self):
-        super().__init__()
-        self.stream = None
-        self.can_stream = True
-
-    def stream_start(self, language=None):
-        self.stream_stop()
-        language = language or self.lang
-        self.queue = Queue()
-        self.stream = self.create_streaming_thread()
-        self.stream.start()
-
-    def stream_data(self, data):
-        self.queue.put(data)
-
-    def stream_stop(self):
-        if self.stream is not None:
-            self.queue.put(None)
-            self.stream.join()
-
-            text = self.stream.text
-
-            self.stream = None
-            self.queue = None
-            return text
-        return None
-
-    def execute(self, audio, language=None):
-        return self.stream_stop()
-
-    @abstractmethod
-    def create_streaming_thread(self):
-        pass
-
-
-class DeepSpeechStreamThread(StreamThread):
+class DeepSpeechServerStreamThread(StreamThread):
     def __init__(self, queue, language, url):
         if not language.startswith("en"):
             raise ValueError("Deepspeech is currently english only")
@@ -389,7 +451,7 @@ class KaldiSTT(STT):
 
 
 class PocketSphinxSTT(BasicSTT):
-    def __init__(self, lang="en-us", config=None):
+    def __init__(self):
         super(PocketSphinxSTT, self).__init__()
         from voice_satellite.speech.stt.pocketsphinx_stt import PS_Recognizer
         self.recognizer = PS_Recognizer(self.lang)
@@ -427,8 +489,6 @@ class HoundifySTT(KeySTT):
 class GoVivaceSTT(TokenSTT):
     def __init__(self):
         super(GoVivaceSTT, self).__init__()
-        if self.keys.get("govivace"):
-            self.token = self.keys["govivace"]["key"]
         self.default_uri = "https://services.govivace.com:49149/telephony"
 
         if not self.lang.startswith("en") and not self.lang.startswith("es"):
@@ -457,6 +517,8 @@ class STTFactory:
         "bing": BingSTT,
         "govivace": GoVivaceSTT,
         "houndify": HoundifySTT,
+        "deepspeech": DeepSpeechSTT,
+        "deepspeech_streaming": DeepSpeechStreamingSTT,
         "deepspeech_server": DeepSpeechServerSTT,
         "deepspeech_stream_server": DeepSpeechStreamServerSTT,
         "yandex": YandexSTT,
