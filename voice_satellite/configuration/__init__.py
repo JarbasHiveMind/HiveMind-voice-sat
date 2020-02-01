@@ -6,7 +6,7 @@ _DEFAULT_CONFIG_PATH = expanduser("~/.jarbasHiveMind/voice_sat.conf")
 
 def default_config():
     default = JsonStorage(_DEFAULT_CONFIG_PATH)
-
+    default["lang"] = "en-us"
     default["host"] = "0.0.0.0"
     default["port"] = 5678
     default["stt"] = {
