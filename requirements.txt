@@ -1,0 +1,10 @@
+json_database
+twisted
+pyopenssl
+autobahn
+SpeechRecognition==3.8.1
+pyee
+requests
+PyAudio==0.2.11
+ResponsiveVoice
+service_identity
