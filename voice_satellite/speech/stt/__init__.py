@@ -18,16 +18,15 @@ from abc import ABCMeta, abstractmethod
 
 from requests import post
 from speech_recognition import Recognizer
-from jarbas_hive_mind.settings import STT_CONFIG
+from jarbas_hive_mind.configuration import CONFIGURATION
 
 
 class STT:
     __metaclass__ = ABCMeta
 
     def __init__(self):
-        config_core = STT_CONFIG
-        self.lang = str(self.init_language(config_core))
-        config_stt = config_core.get("stt", {})
+        self.lang = str(self.init_language(CONFIGURATION))
+        config_stt = CONFIGURATION.get("stt", {})
         self.config = config_stt.get(config_stt.get("module"), {})
         self.credential = self.config.get("credential", {})
         self.recognizer = Recognizer()
@@ -207,7 +206,7 @@ class STTFactory(object):
 
     @staticmethod
     def create(config=None):
-        config = config or STT_CONFIG.get("stt", {})
+        config = config or CONFIGURATION.get("stt", {})
         module = config.get("module", "google")
         clazz = STTFactory.CLASSES.get(module)
         return clazz()
