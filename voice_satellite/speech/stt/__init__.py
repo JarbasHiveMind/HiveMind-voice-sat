@@ -15,21 +15,23 @@
 import json
 import re
 from abc import ABCMeta, abstractmethod
-
 from requests import post
 from speech_recognition import Recognizer
+from queue import Queue
+from threading import Thread
+from jarbas_utils.log import LOG
 from jarbas_hive_mind.configuration import CONFIGURATION
 
 
-class STT:
-    __metaclass__ = ABCMeta
-
+class STT(metaclass=ABCMeta):
+    """ STT Base class, all  STT backends derives from this one. """
     def __init__(self):
         self.lang = str(self.init_language(CONFIGURATION))
         config_stt = CONFIGURATION.get("stt", {})
         self.config = config_stt.get(config_stt.get("module"), {})
         self.credential = self.config.get("credential", {})
         self.recognizer = Recognizer()
+        self.can_stream = False
 
     @staticmethod
     def init_language(config_core):
@@ -44,9 +46,7 @@ class STT:
         pass
 
 
-class TokenSTT(STT):
-    __metaclass__ = ABCMeta
-
+class TokenSTT(STT, metaclass=ABCMeta):
     def __init__(self):
         super(TokenSTT, self).__init__()
         # do not string cast, if token is none uses default test key
@@ -54,16 +54,13 @@ class TokenSTT(STT):
         self.token = self.credential.get("token")
 
 
-class GoogleJsonSTT(STT):
-    __metaclass__ = ABCMeta
-
+class GoogleJsonSTT(STT, metaclass=ABCMeta):
     def __init__(self):
         super(GoogleJsonSTT, self).__init__()
         self.json_credentials = json.dumps(self.credential.get("json"))
 
 
-class BasicSTT(STT):
-    __metaclass__ = ABCMeta
+class BasicSTT(STT, metaclass=ABCMeta):
 
     def __init__(self):
         super(BasicSTT, self).__init__()
@@ -71,8 +68,7 @@ class BasicSTT(STT):
         self.password = str(self.credential.get("password"))
 
 
-class KeySTT(STT):
-    __metaclass__ = ABCMeta
+class KeySTT(STT, metaclass=ABCMeta):
 
     def __init__(self):
         super(KeySTT, self).__init__()
@@ -83,8 +79,6 @@ class KeySTT(STT):
 class GoogleSTT(TokenSTT):
     def __init__(self):
         super(GoogleSTT, self).__init__()
-        if self.token == "None":
-            self.token = None
 
     def execute(self, audio, language=None):
         self.lang = language or self.lang
@@ -94,6 +88,8 @@ class GoogleSTT(TokenSTT):
 class GoogleCloudSTT(GoogleJsonSTT):
     def __init__(self):
         super(GoogleCloudSTT, self).__init__()
+        # override language with module specific language selection
+        self.lang = self.config.get('lang') or self.lang
 
     def execute(self, audio, language=None):
         self.lang = language or self.lang
@@ -107,7 +103,7 @@ class WITSTT(TokenSTT):
         super(WITSTT, self).__init__()
 
     def execute(self, audio, language=None):
-        print("WITSTT language should be configured at wit.ai settings.")
+        LOG.warning("WITSTT language should be configured at wit.ai settings.")
         return self.recognizer.recognize_wit(audio, self.token)
 
 
@@ -119,6 +115,73 @@ class IBMSTT(BasicSTT):
         self.lang = language or self.lang
         return self.recognizer.recognize_ibm(audio, self.username,
                                              self.password, self.lang)
+
+
+class YandexSTT(TokenSTT):
+    """
+        Yandex SpeechKit STT
+        To use create service account with role 'editor' in your cloud folder,
+        create API key for account and add it to local mycroft.conf file.
+        The STT config will look like this:
+
+        "stt": {
+            "module": "yandex",
+            "yandex": {
+                "lang": "en-US",
+                "credential": {
+                    "token": "YOUR_API_KEY"
+                }
+            }
+        }
+    """
+    def __init__(self):
+        super(YandexSTT, self).__init__()
+        self.lang = self.config.get('lang') or self.lang
+
+        if self.token is None:
+            raise ValueError("API key for Yandex STT is not defined")
+
+    def execute(self, audio, language=None):
+        self.lang = language or self.lang
+        if self.lang not in ["en-US", "ru-RU", "tr-TR"]:
+            raise ValueError(
+                "Unsupported language '{}' for Yandex STT".format(self.lang))
+
+        # Select sample rate based on source sample rate
+        # and supported sample rate list
+        supported_sample_rates = [8000, 16000, 48000]
+        sample_rate = audio.sample_rate
+        if sample_rate not in supported_sample_rates:
+            for supported_sample_rate in supported_sample_rates:
+                if audio.sample_rate < supported_sample_rate:
+                    sample_rate = supported_sample_rate
+                    break
+            if sample_rate not in supported_sample_rates:
+                sample_rate = supported_sample_rates[-1]
+
+        raw_data = audio.get_raw_data(convert_rate=sample_rate,
+                                      convert_width=2)
+
+        # Based on https://cloud.yandex.com/docs/speechkit/stt#request
+        url = "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize"
+        headers = {"Authorization": "Api-Key {}".format(self.token)}
+        params = "&".join([
+            "lang={}".format(self.lang),
+            "format=lpcm",
+            "sampleRateHertz={}".format(sample_rate)
+        ])
+
+        response = post(url + "?" + params, headers=headers, data=raw_data)
+        if response.status_code == 200:
+            result = json.loads(response.text)
+            if result.get("error_code") is None:
+                return result.get("result")
+        elif response.status_code == 401:  # Unauthorized
+            raise Exception("Invalid API key for Yandex STT")
+        else:
+            raise Exception(
+                "Request to Yandex STT failed: code: {}, body: {}".format(
+                    response.status_code, response.text))
 
 
 class DeepSpeechServerSTT(STT):
@@ -138,6 +201,176 @@ class DeepSpeechServerSTT(STT):
         return response.text
 
 
+class StreamThread(Thread, metaclass=ABCMeta):
+    """
+        ABC class to be used with StreamingSTT class implementations.
+    """
+
+    def __init__(self, queue, language):
+        super().__init__()
+        self.language = language
+        self.queue = queue
+        self.text = None
+
+    def _get_data(self):
+        while True:
+            d = self.queue.get()
+            if d is None:
+                break
+            yield d
+            self.queue.task_done()
+
+    def run(self):
+        return self.handle_audio_stream(self._get_data(), self.language)
+
+    @abstractmethod
+    def handle_audio_stream(self, audio, language):
+        pass
+
+
+class StreamingSTT(STT, metaclass=ABCMeta):
+    """
+        ABC class for threaded streaming STT implemenations.
+    """
+    def __init__(self):
+        super().__init__()
+        self.stream = None
+        self.can_stream = True
+
+    def stream_start(self, language=None):
+        self.stream_stop()
+        language = language or self.lang
+        self.queue = Queue()
+        self.stream = self.create_streaming_thread()
+        self.stream.start()
+
+    def stream_data(self, data):
+        self.queue.put(data)
+
+    def stream_stop(self):
+        if self.stream is not None:
+            self.queue.put(None)
+            self.stream.join()
+
+            text = self.stream.text
+
+            self.stream = None
+            self.queue = None
+            return text
+        return None
+
+    def execute(self, audio, language=None):
+        return self.stream_stop()
+
+    @abstractmethod
+    def create_streaming_thread(self):
+        pass
+
+
+class DeepSpeechStreamThread(StreamThread):
+    def __init__(self, queue, language, url):
+        if not language.startswith("en"):
+            raise ValueError("Deepspeech is currently english only")
+        super().__init__(queue, language)
+        self.url = url
+
+    def handle_audio_stream(self, audio, language):
+        self.response = post(self.url, data=audio, stream=True)
+        self.text = self.response.text if self.response else None
+        return self.text
+
+
+class DeepSpeechStreamServerSTT(StreamingSTT):
+    """
+        Streaming STT interface for the deepspeech-server:
+        https://github.com/JPEWdev/deep-dregs
+        use this if you want to host DeepSpeech yourself
+        STT config will look like this:
+
+        "stt": {
+            "module": "deepspeech_stream_server",
+            "deepspeech_stream_server": {
+                "stream_uri": "http://localhost:8080/stt?format=16K_PCM16"
+        ...
+    """
+    def create_streaming_thread(self):
+        self.queue = Queue()
+        return DeepSpeechStreamThread(
+            self.queue,
+            self.lang,
+            self.config.get('stream_uri')
+        )
+
+
+class GoogleStreamThread(StreamThread):
+    def __init__(self, queue, lang, client, streaming_config):
+        super().__init__(queue, lang)
+        self.client = client
+        self.streaming_config = streaming_config
+
+    def handle_audio_stream(self, audio, language):
+        req = (types.StreamingRecognizeRequest(audio_content=x) for x in audio)
+        responses = self.client.streaming_recognize(self.streaming_config, req)
+        for res in responses:
+            if res.results and res.results[0].is_final:
+                self.text = res.results[0].alternatives[0].transcript
+        return self.text
+
+
+class GoogleCloudStreamingSTT(StreamingSTT):
+    """
+        Streaming STT interface for Google Cloud Speech-To-Text
+        To use pip install google-cloud-speech and add the
+        Google API key to local mycroft.conf file. The STT config
+        will look like this:
+
+        "stt": {
+            "module": "google_cloud_streaming",
+            "google_cloud_streaming": {
+                "credential": {
+                    "json": {
+                        # Paste Google API JSON here
+        ...
+
+    """
+
+    def __init__(self):
+        global SpeechClient, types, enums, Credentials
+        from google.cloud.speech import SpeechClient, types, enums
+        from google.oauth2.service_account import Credentials
+
+        super(GoogleCloudStreamingSTT, self).__init__()
+        # override language with module specific language selection
+        self.language = self.config.get('lang') or self.lang
+
+        credentials = Credentials.from_service_account_info(
+            self.credential.get('json')
+        )
+
+        self.client = SpeechClient(credentials=credentials)
+        recognition_config = types.RecognitionConfig(
+            encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=16000,
+            language_code=self.language,
+            model='command_and_search',
+            max_alternatives=1,
+        )
+        self.streaming_config = types.StreamingRecognitionConfig(
+            config=recognition_config,
+            interim_results=True,
+            single_utterance=True,
+        )
+
+    def create_streaming_thread(self):
+        self.queue = Queue()
+        return GoogleStreamThread(
+            self.queue,
+            self.language,
+            self.client,
+            self.streaming_config
+        )
+
+
 class KaldiSTT(STT):
     def __init__(self):
         super(KaldiSTT, self).__init__()
@@ -151,20 +384,20 @@ class KaldiSTT(STT):
         try:
             hypotheses = response.json()["hypotheses"]
             return re.sub(r'\s*\[noise\]\s*', '', hypotheses[0]["utterance"])
-        except:
+        except Exception:
             return None
 
 
 class PocketSphinxSTT(BasicSTT):
     def __init__(self, lang="en-us", config=None):
         super(PocketSphinxSTT, self).__init__()
-        from voice_satellite.speech.stt import PS_Recognizer
+        from voice_satellite.speech.stt.pocketsphinx_stt import PS_Recognizer
         self.recognizer = PS_Recognizer(self.lang)
 
     def execute(self, audio, language=None):
         language = language or self.lang
         if language != self.lang:
-            print("Changing decoder language")
+            LOG.info("Changing decoder language")
             from voice_satellite.speech.stt import PS_Recognizer
             self.lang = language
             self.recognizer = PS_Recognizer(self.lang)
@@ -191,22 +424,58 @@ class HoundifySTT(KeySTT):
         return self.recognizer.recognize_houndify(audio, self.id, self.key)
 
 
-class STTFactory(object):
+class GoVivaceSTT(TokenSTT):
+    def __init__(self):
+        super(GoVivaceSTT, self).__init__()
+        if self.keys.get("govivace"):
+            self.token = self.keys["govivace"]["key"]
+        self.default_uri = "https://services.govivace.com:49149/telephony"
+
+        if not self.lang.startswith("en") and not self.lang.startswith("es"):
+            LOG.error("GoVivace STT only supports english and spanish")
+            raise NotImplementedError
+
+    def execute(self, audio, language=None):
+        url = self.config.get("uri", self.default_uri) + "?key=" + \
+              self.token + "&action=find&format=8K_PCM16&validation_string="
+        response = put(url,
+                       data=audio.get_wav_data(convert_rate=8000))
+        return self.get_response(response)
+
+    def get_response(self, response):
+        return response.json()["result"]["hypotheses"][0]["transcript"]
+
+
+class STTFactory:
     CLASSES = {
         "google": GoogleSTT,
         "google_cloud": GoogleCloudSTT,
+        "google_cloud_streaming": GoogleCloudStreamingSTT,
         "wit": WITSTT,
         "ibm": IBMSTT,
         "kaldi": KaldiSTT,
-        "pocketsphinx": PocketSphinxSTT,
-        "houndify": HoundifySTT,
         "bing": BingSTT,
-        "deepspeech_server": DeepSpeechServerSTT
+        "govivace": GoVivaceSTT,
+        "houndify": HoundifySTT,
+        "deepspeech_server": DeepSpeechServerSTT,
+        "deepspeech_stream_server": DeepSpeechStreamServerSTT,
+        "yandex": YandexSTT,
+        "pocketsphinx": PocketSphinxSTT
     }
 
     @staticmethod
-    def create(config=None):
-        config = config or CONFIGURATION.get("stt", {})
-        module = config.get("module", "google")
-        clazz = STTFactory.CLASSES.get(module)
-        return clazz()
+    def create():
+        try:
+            config = CONFIGURATION.get("stt", {})
+            module = config.get("module", "google")
+            clazz = STTFactory.CLASSES.get(module)
+            return clazz()
+        except Exception as e:
+            # The STT backend failed to start. Report it and fall back to
+            # default.
+            LOG.exception('The selected STT backend could not be loaded, '
+                          'falling back to default...')
+            if module != 'google':
+                return GoogleSTT()
+            else:
+                raise

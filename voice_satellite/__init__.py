@@ -4,6 +4,7 @@ from jarbas_hive_mind.slave.terminal import HiveMindTerminalProtocol, HiveMindTe
 import json
 from responsive_voice import ResponsiveVoice
 from jarbas_utils.log import LOG
+from jarbas_utils import create_daemon
 
 platform = "JarbasVoiceTerminalv0.1"
 
@@ -12,7 +13,7 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
     def onOpen(self):
         super().onOpen()
-        self.start_listening()
+        create_daemon(self.start_listening)
 
     def send_message(self, msg):
         msg = json.dumps(msg)
@@ -111,7 +112,7 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
             if msg.get("type", "") == "speak":
                 utterance = msg["data"]["utterance"]
                 LOG.info("[OUTPUT] " + utterance)
-                self.factory.engine.say(utterance)
+                self.factory.say(utterance)
             elif msg.get("type", "") == "hive.complete_intent_failure":
                 LOG.error("complete intent failure")
         else:
@@ -133,6 +134,10 @@ class JarbasVoiceTerminal(HiveMindTerminal):
 
     def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.play_cmd = "mpg123 -q %1"
         self.engine = ResponsiveVoice(gender="female")
         self.config = config
         self.loop = RecognizerLoop(self.config)
+
+    def say(self, utterance):
+        self.engine.say(utterance, play_cmd=self.play_cmd)
