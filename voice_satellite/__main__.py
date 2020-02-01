@@ -1,26 +1,20 @@
-from twisted.internet import reactor, ssl
-from voice_satellite import JarbasVoiceTerminal, logger, platform
-from voice_satellite.configuration import DEFAULT_CONFIG
-import base64
+from voice_satellite.configuration import CONFIGURATION
+from voice_satellite import JarbasVoiceTerminal, platform
+from jarbas_hive_mind import HiveMindConnection
 
 
-def connect_to_hivemind(config=DEFAULT_CONFIG, host="127.0.0.1",
-                        port=5678, name="Jarbas Voice Terminal",
+def connect_to_hivemind(config=CONFIGURATION, host="127.0.0.1",
+                        port=5678, name="JarbasVoiceTerminal",
                         key="voice_key", useragent=platform):
-    authorization = bytes(name + ":" + key, encoding="utf-8")
-    usernamePasswordDecoded = authorization
-    key = base64.b64encode(usernamePasswordDecoded)
+    con = HiveMindConnection(host, port)
 
-    headers = {'authorization': key}
-    address = u"wss://" + host + u":" + str(port)
-    logger.info("[INFO] connecting to hive mind at " + address)
-    terminal = JarbasVoiceTerminal(config=config, headers=headers,
+    terminal = JarbasVoiceTerminal(config=config, headers=con.get_headers(name, key),
                                    useragent=useragent)
-    contextFactory = ssl.ClientContextFactory()
-    reactor.connectSSL(host, port, terminal, contextFactory)
-    reactor.run()
+
+    con.secure_connect(terminal)
 
 
 if __name__ == '__main__':
-    # TODO parse args
+    # TODO argparse
     connect_to_hivemind()
+

@@ -23,10 +23,8 @@ from subprocess import Popen, PIPE, call
 from tempfile import NamedTemporaryFile
 from threading import Thread
 from time import time as get_time
+from jarbas_utils.log import LOG
 
-logger = logging.getLogger("hotwords")
-logger.addHandler(logging.StreamHandler(sys.stdout))
-logger.setLevel("INFO")
 
 conf = {
     "listener": {
@@ -125,7 +123,7 @@ class PocketsphinxHotWord(HotWordEngine):
     def create_config(self, dict_name, config):
         model_file = join(RECOGNIZER_DIR, 'model', self.lang, 'hmm')
         if not exists(model_file):
-            logger.error(
+            LOG.error(
                 '[ERROR] PocketSphinx model not found at ' + str(model_file))
         config.set_string('-hmm', model_file)
         config.set_string('-dict', dict_name)
@@ -162,7 +160,7 @@ class PreciseHotword(HotWordEngine):
         model_name, model_path = self.get_model_info()
 
         exe_file = self.find_download_exe()
-        logger.info('[INFO] Found precise executable: ' + exe_file)
+        LOG.info('[INFO] Found precise executable: ' + exe_file)
         self.update_model(model_name, model_path)
 
         args = [exe_file, model_path, '1024']
@@ -234,11 +232,11 @@ class PreciseHotword(HotWordEngine):
             from urllib.request import urlopen
         else:
             from urllib2 import urlopen
-        logger.info('[INFO] Downloading: ' + url)
+        LOG.info('[INFO] Downloading: ' + url)
         req = urlopen(url)
         with open(filename, 'wb') as fp:
             shutil.copyfileobj(req, fp)
-        logger.info('[INFO] Download complete.')
+        LOG.info('[INFO] Download complete.')
 
     def update_model(self, name, file_name):
         if isfile(file_name):
@@ -300,7 +298,7 @@ class HotWordFactory(object):
 
     @staticmethod
     def create_hotword(hotword="hey mycroft", config=None, lang="en-us"):
-        logger.info("[INFO] creating " + hotword)
+        LOG.info("[INFO] creating " + hotword)
         if not config:
             config = conf.get("hotwords", {})
         module = config.get(hotword).get("module", "pocketsphinx")
@@ -309,6 +307,6 @@ class HotWordFactory(object):
         try:
             return clazz(hotword, config, lang=lang)
         except Exception:
-            logger.warning(
+            LOG.warning(
                 '[WARNING] Could not create hotword. Falling back to default.')
             return HotWordFactory.CLASSES['pocketsphinx']()

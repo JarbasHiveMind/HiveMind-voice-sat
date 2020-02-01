@@ -1,50 +1,35 @@
 from threading import Thread
-
-from autobahn.twisted.websocket import WebSocketClientFactory, \
-    WebSocketClientProtocol
-from twisted.internet.protocol import ReconnectingClientFactory
-
 from voice_satellite.speech.listener import RecognizerLoop
-from voice_satellite.configuration import DEFAULT_CONFIG
-
+from voice_satellite.configuration import CONFIGURATION
+from jarbas_hive_mind.slave.terminal import HiveMindTerminalProtocol, HiveMindTerminal
 import json
-import sys
-import logging
 from responsive_voice import ResponsiveVoice
+from jarbas_utils.log import LOG
 
 platform = "JarbasVoiceTerminalv0.1"
 
-logger = logging.getLogger(platform)
-logger.addHandler(logging.StreamHandler(sys.stdout))
-logger.setLevel("INFO")
 
-
-class JarbasVoiceTerminalProtocol(WebSocketClientProtocol):
-
-    def onConnect(self, response):
-        logger.info("[INFO] Server connected: {0}".format(response.peer))
-        self.factory.client = self
-        self.factory.status = "connected"
+class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
     def onOpen(self):
-        logger.info("[INFO] WebSocket connection open. ")
+        LOG.info("HiveMind WebSocket connection open. ")
         self.loop = RecognizerLoop(self.factory.config)
         self.listen = Thread(target=self.start_listening)
         self.listen.setDaemon(True)
         self.listen.start()
 
     def handle_record_begin(self):
-        logger.info("[INFO] Begin Recording...")
+        LOG.info("Begin Recording...")
 
     def handle_record_end(self):
-        logger.info("[INFO] End Recording...")
+        LOG.info("End Recording...")
 
     def handle_awoken(self):
         """ Forward mycroft.awoken to the messagebus. """
-        logger.info("[INFO] Listener is now Awake: ")
+        LOG.info("Listener is now Awake: ")
 
     def handle_wakeword(self, event):
-        logger.info("[INFO] Wakeword Detected: " + event['utterance'])
+        LOG.info("Wakeword Detected: " + event['utterance'])
 
     def handle_utterance(self, event):
         context = {'platform': platform, "source": self.peer,
@@ -56,14 +41,14 @@ class JarbasVoiceTerminalProtocol(WebSocketClientProtocol):
         self.send(msg)
 
     def handle_unknown(self):
-        logger.info("[INFO] mycroft.speech.recognition.unknown")
+        LOG.info("mycroft.speech.recognition.unknown")
 
     def handle_hotword(self, event):
         config = self.factory.config.get("listener", {})
         ww = config.get("wake_word", "hey mycroft")
         suw = config.get("stand_up_word", "wake up")
         if event["hotword"] != ww and event["hotword"] != suw:
-            logger.info("[INFO] Hotword Detected: " + event['hotword'])
+            LOG.info("Hotword Detected: " + event['hotword'])
 
     def handle_sleep(self):
         self.loop.sleep()
@@ -125,10 +110,10 @@ class JarbasVoiceTerminalProtocol(WebSocketClientProtocol):
             msg = json.loads(payload)
             if msg.get("type", "") == "speak":
                 utterance = msg["data"]["utterance"]
-                logger.info("[OUTPUT] " + utterance)
+                LOG.info("[OUTPUT] " + utterance)
                 self.factory.engine.say(utterance)
             elif msg.get("type", "") == "hive.complete_intent_failure":
-                logger.error("[ERROR] complete intent failure")
+                LOG.error("complete intent failure")
         else:
             pass
 
@@ -138,40 +123,36 @@ class JarbasVoiceTerminalProtocol(WebSocketClientProtocol):
         self.sendMessage(msg, False)
 
     def onClose(self, wasClean, code, reason):
-        logger.info(
-            "[INFO] WebSocket connection closed: {0}".format(reason))
+        LOG.info(
+            "WebSocket connection closed: {0}".format(reason))
         self.stop_listening()
         self.factory.client = None
         self.factory.status = "disconnected"
         if "Internalservererror:InvalidAPIkey" in reason:
-            logger.error("[ERROR] invalid user:key provided")
+            LOG.error("[ERROR] invalid user:key provided")
             utterance = "hive mind refused connection, invalid user or key " \
                         "provided"
             self.factory.engine.say(utterance)
             raise ConnectionAbortedError("invalid user:key provided")
 
 
-class JarbasVoiceTerminal(WebSocketClientFactory,
-                          ReconnectingClientFactory):
+class JarbasVoiceTerminal(HiveMindTerminal):
     protocol = JarbasVoiceTerminalProtocol
 
-    def __init__(self, config=DEFAULT_CONFIG, *args, **kwargs):
+    def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super(JarbasVoiceTerminal, self).__init__(*args, **kwargs)
         self.status = "disconnected"
         self.client = None
-        # TODO make optional
         self.engine = ResponsiveVoice(gender="female")
         self.config = config
 
     # websocket handlers
     def clientConnectionFailed(self, connector, reason):
-        logger.info("[INFO] Client connection failed: " +
-                    str(reason) + " .. retrying ..")
+        LOG.info("HiveMind connection failed: " + str(reason) + " .. retrying ..")
         self.status = "disconnected"
         self.retry(connector)
 
     def clientConnectionLost(self, connector, reason):
-        logger.info("[INFO] Client connection lost: " +
-                    str(reason) + " .. retrying ..")
+        LOG.info("HiveMind connection lost: " + str(reason) + " .. retrying ..")
         self.status = "disconnected"
         self.retry(connector)

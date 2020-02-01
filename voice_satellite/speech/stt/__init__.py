@@ -21,7 +21,7 @@ from speech_recognition import Recognizer
 from jarbas_hive_mind.settings import STT_CONFIG
 
 
-class STT(object):
+class STT:
     __metaclass__ = ABCMeta
 
     def __init__(self):

@@ -31,11 +31,8 @@ if sys.version_info[0] < 3:
 else:
     from queue import Queue, Empty
 
-import logging
+from jarbas_utils.log import LOG
 
-logger = logging.getLogger("listener")
-logger.addHandler(logging.StreamHandler(sys.stdout))
-logger.setLevel("INFO")
 
 conf = {
     "listener": {
@@ -162,7 +159,7 @@ class AudioConsumer(Thread):
         self.emitter.emit("recognizer_loop:wakeword", payload)
 
         if self._audio_length(audio) < self.MIN_AUDIO_SIZE:
-            logger.error("[ERROR] Audio too short to be processed")
+            LOG.error("[ERROR] Audio too short to be processed")
         else:
             transcription = self.transcribe(audio)
             if transcription:
@@ -177,26 +174,26 @@ class AudioConsumer(Thread):
         try:
             # Invoke the STT engine on the audio clip
             text = self.stt.execute(audio).lower().strip()
-            logger.info("[INFO] STT: " + text)
+            LOG.info("[INFO] STT: " + text)
             return text
         except sr.RequestError as e:
-            logger.error(
+            LOG.error(
                 "[ERROR] Could not request Speech Recognition {0}".format(e))
         except ConnectionError as e:
-            logger.error("[ERROR] Connection Error: {0}".format(e))
+            LOG.error("[ERROR] Connection Error: {0}".format(e))
 
             self.emitter.emit("recognizer_loop:no_internet")
         except HTTPError as e:
-            logger.error("[ERROR] " + e.__class__.__name__ + ': ' + str(e))
+            LOG.error("[ERROR] " + e.__class__.__name__ + ': ' + str(e))
         except RequestException as e:
-            logger.error("[ERROR] " + e.__class__.__name__ + ': ' + str(e))
+            LOG.error("[ERROR] " + e.__class__.__name__ + ': ' + str(e))
         except Exception as e:
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
             if isinstance(e, IndexError) or isinstance(e, UnknownValueError) :
-                logger.error('[ERROR] no words were transcribed')
+                LOG.error('[ERROR] no words were transcribed')
             else:
-                logger.exception(e)
-            logger.error(
+                LOG.exception(e)
+            LOG.error(
                 "[ERROR] Speech Recognition could not understand audio")
             return None
         dialog_name = 'not connected to the internet'
@@ -252,7 +249,7 @@ class RecognizerLoop(EventEmitter):
         self.state = RecognizerLoopState()
 
     def create_hot_word_engines(self):
-        logger.info("[INFO] creating secondary hotword engines")
+        LOG.info("[INFO] creating secondary hotword engines")
         hot_words = self.config_core.get("hotwords", {})
         for word in hot_words:
             data = hot_words[word]
@@ -270,7 +267,7 @@ class RecognizerLoop(EventEmitter):
 
     def create_wake_word_recognizer(self):
         # Create a local recognizer to hear the wakeup word, e.g. 'Hey Mycroft'
-        logger.info("[INFO] creating main wake word engine")
+        LOG.info("[INFO] creating main wake word engine")
         word = self.config.get("wake_word", "hey mycroft")
         # TODO remove this, only for server settings compatibility
         phonemes = self.config.get("phonemes")
@@ -288,7 +285,7 @@ class RecognizerLoop(EventEmitter):
         return HotWordFactory.create_hotword(word, config, self.lang)
 
     def create_wakeup_recognizer(self):
-        logger.info("[INFO] creating stand up word engine")
+        LOG.info("[INFO] creating stand up word engine")
         word = self.config.get("stand_up_word", "wake up")
         return HotWordFactory.create_hotword(word, lang=self.lang)
 
@@ -360,7 +357,7 @@ class RecognizerLoop(EventEmitter):
                 time.sleep(1)
 
             except KeyboardInterrupt as e:
-                logger.exception(e)
+                LOG.exception(e)
                 self.stop()
                 raise  # Re-raise KeyboardInterrupt
 

@@ -1,10 +1,7 @@
-json_database
-twisted
-pyopenssl
-autobahn
+jarbas_hive_mind>=0.5
 SpeechRecognition==3.8.1
 pyee
 requests
 PyAudio==0.2.11
 ResponsiveVoice
-service_identity
+pocketsphinx==0.1.15

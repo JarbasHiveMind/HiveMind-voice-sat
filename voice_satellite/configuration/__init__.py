@@ -1,15 +1,14 @@
 from json_database import JsonStorage
 from os.path import expanduser, exists
 
-DATA_PATH = expanduser("~/.jarbasHiveMind/voice_sat.conf")
+_DEFAULT_CONFIG_PATH = expanduser("~/.jarbasHiveMind/voice_sat.conf")
 
 
 def default_config():
-    default = JsonStorage(DATA_PATH)
+    default = JsonStorage(_DEFAULT_CONFIG_PATH)
 
     default["host"] = "0.0.0.0"
     default["port"] = 5678
-    default["data_path"] = DATA_PATH
     default["stt"] = {
         "module": "google",
         "deepspeech_server": {
@@ -58,8 +57,8 @@ def default_config():
     return default
 
 
-if not exists(DATA_PATH):
-    DEFAULT_CONFIG = default_config()
-    DEFAULT_CONFIG.store()
+if not exists(_DEFAULT_CONFIG_PATH):
+    CONFIGURATION = default_config()
+    CONFIGURATION.store()
 else:
-    DEFAULT_CONFIG = JsonStorage(DATA_PATH)
+    CONFIGURATION = JsonStorage(_DEFAULT_CONFIG_PATH)
