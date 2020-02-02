@@ -120,13 +120,12 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
     def onClose(self, wasClean, code, reason):
         super().onClose(wasClean, code, reason)
-        self.stop_listening()
-        if "Internalservererror:InvalidAPIkey" in reason:
+        if "WebSocket connection upgrade failed" in reason:
             LOG.error("[ERROR] invalid user:key provided")
-            utterance = "hive mind refused connection, invalid user or key " \
-                        "provided"
+            utterance = "hive mind refused connection, invalid password"
             self.factory.engine.say(utterance)
-            raise ConnectionAbortedError("invalid user:key provided")
+        else:
+            self.stop_listening()
 
 
 class JarbasVoiceTerminal(HiveMindTerminal):
