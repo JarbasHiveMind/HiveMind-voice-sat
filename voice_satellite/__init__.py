@@ -35,7 +35,7 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
     def handle_utterance(self, event):
         context = {'platform': platform, "source": self.peer,
-                   'destinatary': "hive_mind"}
+                   'destination': "hive_mind"}
         msg = {"data": {"utterances": event['utterances'], "lang": "en-us"},
                "type": "recognizer_loop:utterance",
                "context": context}
