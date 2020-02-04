@@ -17,7 +17,6 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
     def send_message(self, msg):
         msg = json.dumps(msg)
-        msg = bytes(msg, encoding="utf-8")
         self.sendMessage(msg, False)
 
     def handle_record_begin(self):
@@ -107,7 +106,7 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
     def onMessage(self, payload, isBinary):
         if not isBinary:
-            payload = payload.decode("utf-8")
+            payload = self.decode(payload)
             msg = json.loads(payload)
             if msg.get("type", "") == "speak":
                 utterance = msg["data"]["utterance"]
