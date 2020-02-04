@@ -1,4 +1,4 @@
-jarbas_hive_mind>=0.7.0
+jarbas_hive_mind>=0.7.1
 SpeechRecognition==3.8.1
 pyee
 requests

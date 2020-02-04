@@ -12,8 +12,7 @@ def connect_to_hivemind(config=CONFIGURATION, host="127.0.0.1",
 
     terminal = JarbasVoiceTerminal(config=config,
                                    crypto_key=crypto_key,
-                                   headers=con.get_headers(
-        name, key),
+                                   headers=con.get_headers(name, key),
                                    useragent=useragent)
 
     con.secure_connect(terminal)
