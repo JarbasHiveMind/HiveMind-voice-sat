@@ -3,5 +3,6 @@ SpeechRecognition==3.8.1
 pyee
 requests
 PyAudio==0.2.11
-ResponsiveVoice
 pocketsphinx==0.1.15
+jarbas_utils
+gtts

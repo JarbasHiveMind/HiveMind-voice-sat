@@ -2,12 +2,12 @@ from voice_satellite.speech.listener import RecognizerLoop
 from voice_satellite.configuration import CONFIGURATION
 from jarbas_hive_mind.slave.terminal import HiveMindTerminalProtocol, \
     HiveMindTerminal
-from responsive_voice import ResponsiveVoice
+
 from jarbas_utils.log import LOG
 from jarbas_utils import create_daemon
 from jarbas_utils.messagebus import Message
 
-platform = "JarbasVoiceTerminalv0.2"
+platform = "JarbasVoiceTerminalv0.3"
 
 
 class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
@@ -30,14 +30,44 @@ class JarbasVoiceTerminal(HiveMindTerminal):
 
     def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.play_cmd = "mpg123 -q %1"
-        self.engine = ResponsiveVoice(gender="female")
         self.config = config
         self.loop = RecognizerLoop(self.config)
+        lang = self.config.get("lang", "en")
+        tts = self.config.get("tts", {"module": "google"})["module"]
+        tts_config = self.config.get("tts", {}).get(tts, {})
+        if tts == "google":
+            from voice_satellite.tts.google_tts import GoogleTTS
+            self.tts = GoogleTTS(lang, tts_config)
+        elif tts == "espeak":
+            from voice_satellite.tts.espeak_tts import ESpeak
+            self.tts = ESpeak(lang, tts_config)
+        elif tts == "mimic":
+            from voice_satellite.tts.mimic_tts import Mimic
+            self.tts = Mimic(lang, tts_config)
+        elif tts == "watson":
+            from voice_satellite.tts.ibm_tts import WatsonTTS
+            self.tts = WatsonTTS(lang, tts_config)
+        elif tts == "yandex":
+            from voice_satellite.tts.yandex_tts import YandexTTS
+            self.tts = YandexTTS(lang, tts_config)
+        elif tts == "spdsay":
+            from voice_satellite.tts.spdsay_tts import SpdSay
+            self.tts = SpdSay(lang, tts_config)
+        elif tts == "mary":
+            from voice_satellite.tts.mary_tts import MaryTTS
+            self.tts = MaryTTS(lang, tts_config)
+        elif tts == "bing":
+            from voice_satellite.tts.bing_tts import BingTTS
+            self.tts = BingTTS(lang, tts_config)
+        elif tts == "fa":
+            from voice_satellite.tts.fa_tts import FATTS
+            self.tts = FATTS(lang, tts_config)
+        else:
+            raise ValueError("Unknown TTS engine")
 
     # Voice Output
     def speak(self, utterance):
-        self.engine.say(utterance, play_cmd=self.play_cmd)
+        self.tts.execute(utterance)
 
     # Voice Input
     def handle_record_begin(self):
