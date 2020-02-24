@@ -20,7 +20,7 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
         super().onClose(wasClean, code, reason)
         if "WebSocket connection upgrade failed" in reason:
             utterance = "hive mind refused connection, invalid password"
-            self.factory.engine.say(utterance)
+            self.factory.speak(utterance)
         else:
             self.factory.stop_listening()
 
