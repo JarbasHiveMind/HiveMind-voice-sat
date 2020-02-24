@@ -13,7 +13,10 @@
 # limitations under the License.
 #
 import re
+import os
 import time
+from time import sleep, time as get_time
+import json
 from threading import Thread
 import speech_recognition as sr
 import pyaudio
@@ -151,6 +154,14 @@ class AudioConsumer(Thread):
         self.emitter = emitter
         self.stt = stt
         self.wakeup_recognizer = wakeup_recognizer
+        data_path = os.path.expanduser(CONFIGURATION["data_dir"])
+        listener_config = CONFIGURATION["listener"]
+        self.save_utterances = listener_config.get('record_utterances', False)
+        self.saved_utterances_dir = os.path.join(data_path, 'utterances')
+        if not os.path.isdir(data_path):
+            os.makedirs(data_path)
+        if not os.path.isdir(self.saved_utterances_dir):
+            os.makedirs(self.saved_utterances_dir)
 
     def run(self):
         while self.state.running:
@@ -182,7 +193,6 @@ class AudioConsumer(Thread):
         else:
             LOG.error("Unknown audio queue type %r" % audio)
 
-    # TODO: Localization
     def wake_up(self, audio):
         if self.wakeup_recognizer.found_wake_word(audio.frame_data):
             self.state.sleeping = False
@@ -207,6 +217,19 @@ class AudioConsumer(Thread):
                 }
                 self.emitter.emit("recognizer_loop:utterance", payload)
 
+    def _compile_metadata(self, utterance):
+        timestamp = str(int(1000 * get_time()))
+        if utterance:
+            name = utterance.replace(" ", "_").lower() + "_" + timestamp + ".wav"
+        else:
+            name = "UNK_" + timestamp + ".wav"
+        return {
+            'name': name,
+            'transcript': utterance,
+            'engine': self.stt.__class__.__name__,
+            'time': timestamp
+        }
+
     def transcribe(self, audio):
         def send_unknown_intent():
             """ Send message that nothing was transcribed. """
@@ -221,6 +244,18 @@ class AudioConsumer(Thread):
             else:
                 send_unknown_intent()
                 LOG.info('no words were transcribed')
+            if self.save_utterances:
+                mtd = self._compile_metadata(text)
+
+                filename = os.path.join(self.saved_utterances_dir, mtd["name"])
+                with open(filename, 'wb') as f:
+                    f.write(audio.get_wav_data())
+
+                filename = os.path.join(self.saved_utterances_dir,
+                                        mtd["name"].replace(".wav", ".json"))
+                with open(filename, 'w') as f:
+                    json.dump(mtd, f, indent=4)
+
             return text
         except sr.RequestError as e:
             LOG.error("Could not request Speech Recognition {0}".format(e))

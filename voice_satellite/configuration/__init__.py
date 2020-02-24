@@ -10,7 +10,7 @@ def get_default_config():
     default["lang"] = "en-us"
     default["host"] = "0.0.0.0"
     default["port"] = 5678
-    default["data_dir"] = "~/jarbasHiveMind"
+    default["data_dir"] = "~/jarbasHiveMind/recordings"
     default["tts"] = {
         "module": "google"
     }
@@ -26,8 +26,8 @@ def get_default_config():
     default["listener"] = {
         "sample_rate": 16000,
         "channels": 1,
-        "record_wake_words": False,
-        "record_utterances": False,
+        "record_wake_words": True,
+        "record_utterances": True,
         "phoneme_duration": 120,
         "multiplier": 1.0,
         "energy_ratio": 1.5,
@@ -64,9 +64,6 @@ def get_default_config():
 
 
 DEFAULT_CONFIGURATION = get_default_config()
-
-if not exists(_DEFAULT_CONFIG_PATH):
-    DEFAULT_CONFIGURATION.store()
 
 
 def merge_dict(base, delta):

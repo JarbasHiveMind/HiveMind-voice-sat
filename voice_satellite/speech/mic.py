@@ -16,7 +16,6 @@ import audioop
 from time import sleep, time as get_time
 
 from collections import deque
-import datetime
 import os
 from os.path import isdir, join
 import pyaudio
@@ -27,7 +26,7 @@ from speech_recognition import (
     AudioSource,
     AudioData
 )
-from tempfile import gettempdir
+import json
 from threading import Lock
 
 from voice_satellite.configuration import CONFIGURATION
@@ -262,11 +261,13 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.multiplier = listener_config.get('multiplier')
         self.energy_ratio = listener_config.get('energy_ratio')
         # check the config for the flag to save wake words.
-
-        self.save_utterances = listener_config.get('save_utterances', False)
-
-        self.save_wake_words = listener_config.get('record_wake_words')
-        self.saved_wake_words_dir = join(gettempdir(), 'mycroft_wake_words')
+        data_path = os.path.expanduser(self.config["data_dir"])
+        self.save_wake_words = listener_config.get('record_wake_words', False)
+        self.saved_wake_words_dir = join(data_path, 'hotwords')
+        if not os.path.isdir(data_path):
+            os.makedirs(data_path)
+        if not os.path.isdir(self.saved_wake_words_dir):
+            os.makedirs(self.saved_wake_words_dir)
 
         # Signal statuses
         self._stop_signaled = False
@@ -596,6 +597,14 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                         with open(fn, 'wb') as f:
                             f.write(audio.get_wav_data())
 
+                        fn = join(
+                            self.saved_wake_words_dir,
+                            '_'.join(str(mtd[k]) for k in sorted(mtd)) +
+                            '.json'
+                        )
+                        with open(fn, 'w') as f:
+                            json.dump(mtd, f, indent=4)
+
                     if listen:
                         said_wake_word = True
 
@@ -661,13 +670,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
-        if self.save_utterances:
-            LOG.info("Recording utterance")
-            stamp = str(datetime.datetime.now())
-            filename = "/tmp/mycroft_utterance%s.wav" % stamp
-            with open(filename, 'wb') as filea:
-                filea.write(audio_data.get_wav_data())
-            LOG.debug("Thinking...")
+
+        LOG.debug("Thinking...")
 
         return audio_data
 
