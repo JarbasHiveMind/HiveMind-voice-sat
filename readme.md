@@ -2,8 +2,16 @@
 
 Mycroft Voice Satellite, connect to [HiveMind-core](https://github.com/OpenJarbas/HiveMind-core)
 
+- [HiveMind Voice Satellite](#hivemind-voice-satellite)
+  * [Setup](#setup)
+    + [Install](#install)
+    + [Usage](#usage)
+    + [Configuration](#configuration)
+      - [configure speech to text](#configure-speech-to-text)
+      - [configure text to speech](#configure-text-to-speech)
+      - [Configure hotwords](#configure-hotwords)
+      - [configure listener](#configure-listener)
 
-## Usage
 
 ![](./voice_sat.png)
 
