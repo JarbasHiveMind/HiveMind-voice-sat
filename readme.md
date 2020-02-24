@@ -4,26 +4,24 @@ Mycroft Voice Satellite, connect to [HiveMind-core](https://github.com/OpenJarba
 
 - [HiveMind Voice Satellite](#hivemind-voice-satellite)
   * [Setup](#setup)
-    + [Install](#install)
-    + [Usage](#usage)
-    + [Configuration](#configuration)
-      - [configure speech to text](#configure-speech-to-text)
-      - [configure text to speech](#configure-text-to-speech)
-      - [Configure hotwords](#configure-hotwords)
-      - [configure listener](#configure-listener)
+  * [Usage](#usage)
+  * [Configuration](#configuration)
+    - [configure speech to text](#configure-speech-to-text)
+    - [configure text to speech](#configure-text-to-speech)
+    - [Configure hotwords](#configure-hotwords)
+    - [configure listener](#configure-listener)
 
 
 ![](./voice_sat.png)
 
-## Setup
 
-### Install
+## Setup
 
 ```bash
 pip install git+https://github.com/OpenJarbas/HiveMind-voice-sat
 ```
 
-### Usage
+## Usage
 
 TODO: arg parse not implemented
 ```bash
@@ -59,7 +57,8 @@ if __name__ == '__main__':
     connect_to_hivemind(config, host, port, name, key, crypto_key)
 
 ```
-### Configuration
+
+## Configuration
 
 You can set the configuration at
     
@@ -67,7 +66,7 @@ You can set the configuration at
     
 Otherwise default configuration will be used, check bellow for defaults
 
-#### configure speech to text
+### configure speech to text
 ```json
 {
     "lang": "en-us",
@@ -83,7 +82,7 @@ Otherwise default configuration will be used, check bellow for defaults
 }
 ```
 
-#### configure text to speech
+### configure text to speech
 ```json
 {
     "lang": "en-us",
@@ -93,7 +92,7 @@ Otherwise default configuration will be used, check bellow for defaults
 }
 ```
 
-#### Configure hotwords
+### Configure hotwords
 
 add any number of hot words to config
 - hot word can be any engine (snowboy/pocketsphinx/precise)
@@ -132,7 +131,7 @@ add any number of hot words to config
 }
 ```
 
-#### configure listener
+### configure listener
 
 ```json
 {
