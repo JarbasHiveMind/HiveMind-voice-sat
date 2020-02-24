@@ -26,8 +26,8 @@ def get_default_config():
     default["listener"] = {
         "sample_rate": 16000,
         "channels": 1,
-        "record_wake_words": True,
-        "record_utterances": True,
+        "record_wake_words": False,
+        "record_utterances": False,
         "phoneme_duration": 120,
         "multiplier": 1.0,
         "energy_ratio": 1.5,
