@@ -23,11 +23,11 @@ import pyaudio
 from pyee import EventEmitter
 from requests import RequestException
 from requests.exceptions import ConnectionError
-from voice_satellite.configuration import CONFIGURATION
-from voice_satellite.speech.hotword_factory import HotWordFactory
-from voice_satellite.speech.mic import MutableMicrophone, \
+from mycroft_voice_satellite.configuration import CONFIGURATION
+from mycroft_voice_satellite.speech.hotword_factory import HotWordFactory
+from mycroft_voice_satellite.speech.mic import MutableMicrophone, \
     ResponsiveRecognizer
-from voice_satellite.speech.stt import STTFactory
+from mycroft_voice_satellite.speech.stt import STTFactory
 from queue import Queue, Empty
 from jarbas_utils.log import LOG
 

@@ -20,7 +20,7 @@ from speech_recognition import Recognizer
 from queue import Queue
 from threading import Thread
 
-from voice_satellite.configuration import CONFIGURATION
+from mycroft_voice_satellite.configuration import CONFIGURATION
 from jarbas_utils.log import LOG
 
 
@@ -381,7 +381,7 @@ class PocketSphinxSTT(BasicSTT):
     def __init__(self, lang="en-us", config=None):
         super(PocketSphinxSTT, self).__init__()
         global PS_Recognizer
-        from voice_satellite.speech.stt.pocketsphinx_stt import PS_Recognizer
+        from mycroft_voice_satellite.speech.stt.pocketsphinx_stt import PS_Recognizer
         self.recognizer = PS_Recognizer(self.lang)
 
     def execute(self, audio, language=None):

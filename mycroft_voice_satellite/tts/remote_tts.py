@@ -16,7 +16,7 @@ import abc
 import re
 from requests_futures.sessions import FuturesSession
 from os.path import join
-from voice_satellite.tts import TTS
+from mycroft_voice_satellite.tts import TTS
 from jarbas_utils.sound import play_wav
 from jarbas_utils.log import LOG
 

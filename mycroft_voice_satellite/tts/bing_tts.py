@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-from voice_satellite.tts import TTS, TTSValidator
+from mycroft_voice_satellite.tts import TTS, TTSValidator
 
 
 class BingTTS(TTS):

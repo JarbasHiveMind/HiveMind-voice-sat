@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='HiveMind-voice-sat',
     version='1.0.0',
-    packages=['voice_satellite'],
+    packages=['mycroft_voice_satellite'],
     install_requires=["jarbas_hive_mind>=0.8.0",
                       "SpeechRecognition==3.8.1",
                       "pyee",

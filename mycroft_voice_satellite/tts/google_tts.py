@@ -12,25 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import subprocess
+from gtts import gTTS
+from mycroft_voice_satellite.tts import TTS, TTSValidator
 
-from voice_satellite.tts import TTS, TTSValidator
 
-
-class ESpeak(TTS):
+class GoogleTTS(TTS):
     def __init__(self, lang, config):
-        super(ESpeak, self).__init__(lang, config, ESpeakValidator(self))
+        super(GoogleTTS, self).__init__(lang, config, GoogleTTSValidator(
+            self), 'mp3')
 
-    def execute(self, sentence, ident=None, listen=False):
-        self.begin_audio()
-        subprocess.call(
-            ['espeak', '-v', self.lang + '+' + self.voice, sentence])
-        self.end_audio()
+    def get_tts(self, sentence, wav_file):
+        tts = gTTS(sentence, lang=self.lang)
+        print(wav_file, self.lang)
+        tts.save(wav_file)
+        return (wav_file, None)  # No phonemes
 
 
-class ESpeakValidator(TTSValidator):
+class GoogleTTSValidator(TTSValidator):
     def __init__(self, tts):
-        super(ESpeakValidator, self).__init__(tts)
+        super(GoogleTTSValidator, self).__init__(tts)
 
     def validate_lang(self):
         # TODO
@@ -38,10 +38,12 @@ class ESpeakValidator(TTSValidator):
 
     def validate_connection(self):
         try:
-            subprocess.call(['espeak', '--version'])
+            gTTS(text='Hi').save(self.tts.filename)
         except Exception:
             raise Exception(
-                'ESpeak is not installed. Run: sudo apt-get install espeak')
+                'GoogleTTS server could not be verified. Please check your '
+                'internet connection.')
 
     def get_tts_class(self):
-        return ESpeak
+        return GoogleTTS
+

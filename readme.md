@@ -27,40 +27,28 @@ pip install git+https://github.com/OpenJarbas/HiveMind-voice-sat
 
 TODO: arg parse not implemented
 ```bash
-python -m voice_satellite
+python -m mycroft_voice_satellite
 ```
 
 or in a script
 
 ```python
 
-from voice_satellite.configuration import CONFIGURATION
-from voice_satellite import JarbasVoiceTerminal, platform
-from jarbas_hive_mind import HiveMindConnection
-
-
-def connect_to_hivemind(config=CONFIGURATION, host="wss://127.0.0.1",
-                        port=5678, name="JarbasVoiceTerminal",
-                        key="dummy_key", crypto_key=None,
-
-                        useragent=platform):
-                        
-    # key is the authentication key registered in hivemind-core
-    # crypto_key is used to de/encrypt all messages and must match crypto-key stored in hivemind-core
-    # name is a currently placeholder nickname and not used for authentication
-    con = HiveMindConnection(host, port)
-
-    terminal = JarbasVoiceTerminal(config=config,
-                                   crypto_key=crypto_key,
-                                   headers=con.get_headers(name, key),
-                                   useragent=useragent)
-
-    con.connect(terminal)
+from mycroft_voice_satellite import connect_to_hivemind
+from mycroft_voice_satellite.configuration import CONFIGURATION
 
 
 if __name__ == '__main__':
     # TODO argparse
-    connect_to_hivemind()
+    config = CONFIGURATION
+    host = "wss://127.0.0.1"
+    port = 5678
+    name = "JarbasVoiceTerminal"
+    key = "dummy_key"
+    crypto_key = None
+
+    connect_to_hivemind(config, host, port, name, key, crypto_key)
+
 
 ```
 ### Configuration

@@ -13,8 +13,8 @@
 # limitations under the License.
 #
 
-from voice_satellite.tts import TTSValidator
-from voice_satellite.tts.remote_tts import RemoteTTS
+from mycroft_voice_satellite.tts import TTSValidator
+from mycroft_voice_satellite.tts.remote_tts import RemoteTTS
 from requests.auth import HTTPBasicAuth
 
 

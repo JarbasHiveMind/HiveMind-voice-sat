@@ -14,23 +14,23 @@
 #
 import subprocess
 
-from voice_satellite.tts import TTS, TTSValidator
+from mycroft_voice_satellite.tts import TTS, TTSValidator
 
 
-class SpdSay(TTS):
+class ESpeak(TTS):
     def __init__(self, lang, config):
-        super(SpdSay, self).__init__(lang, config, SpdSayValidator(self))
+        super(ESpeak, self).__init__(lang, config, ESpeakValidator(self))
 
     def execute(self, sentence, ident=None, listen=False):
         self.begin_audio()
         subprocess.call(
-            ['spd-say', '-l', self.lang, '-t', self.voice, sentence])
+            ['espeak', '-v', self.lang + '+' + self.voice, sentence])
         self.end_audio()
 
 
-class SpdSayValidator(TTSValidator):
+class ESpeakValidator(TTSValidator):
     def __init__(self, tts):
-        super(SpdSayValidator, self).__init__(tts)
+        super(ESpeakValidator, self).__init__(tts)
 
     def validate_lang(self):
         # TODO
@@ -38,11 +38,10 @@ class SpdSayValidator(TTSValidator):
 
     def validate_connection(self):
         try:
-            subprocess.call(['spd-say', '--version'])
+            subprocess.call(['espeak', '--version'])
         except Exception:
             raise Exception(
-                'SpdSay is not installed. Run: sudo apt-get install '
-                'speech-dispatcher')
+                'ESpeak is not installed. Run: sudo apt-get install espeak')
 
     def get_tts_class(self):
-        return SpdSay
+        return ESpeak

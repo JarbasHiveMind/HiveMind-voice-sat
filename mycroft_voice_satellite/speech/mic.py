@@ -29,8 +29,8 @@ from speech_recognition import (
 import json
 from threading import Lock
 
-from voice_satellite.configuration import CONFIGURATION
-from voice_satellite.speech.signal import check_for_signal
+from mycroft_voice_satellite.configuration import CONFIGURATION
+from mycroft_voice_satellite.speech.signal import check_for_signal
 from jarbas_utils.sound import play_ogg, play_mp3, play_wav, play_audio
 from jarbas_utils.log import LOG
 from jarbas_utils.lang.phonemes import get_phonemes

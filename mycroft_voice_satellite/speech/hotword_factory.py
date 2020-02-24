@@ -25,7 +25,7 @@ from shutil import rmtree
 from threading import Timer, Event, Thread
 from urllib.error import HTTPError
 
-from voice_satellite.configuration import CONFIGURATION
+from mycroft_voice_satellite.configuration import CONFIGURATION
 from jarbas_utils.log import LOG
 
 RECOGNIZER_DIR = join(abspath(dirname(__file__)), "recognizer")

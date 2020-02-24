@@ -12,25 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-from gtts import gTTS
-from voice_satellite.tts import TTS, TTSValidator
+import subprocess
+
+from mycroft_voice_satellite.tts import TTS, TTSValidator
 
 
-class GoogleTTS(TTS):
+class SpdSay(TTS):
     def __init__(self, lang, config):
-        super(GoogleTTS, self).__init__(lang, config, GoogleTTSValidator(
-            self), 'mp3')
+        super(SpdSay, self).__init__(lang, config, SpdSayValidator(self))
 
-    def get_tts(self, sentence, wav_file):
-        tts = gTTS(sentence, lang=self.lang)
-        print(wav_file, self.lang)
-        tts.save(wav_file)
-        return (wav_file, None)  # No phonemes
+    def execute(self, sentence, ident=None, listen=False):
+        self.begin_audio()
+        subprocess.call(
+            ['spd-say', '-l', self.lang, '-t', self.voice, sentence])
+        self.end_audio()
 
 
-class GoogleTTSValidator(TTSValidator):
+class SpdSayValidator(TTSValidator):
     def __init__(self, tts):
-        super(GoogleTTSValidator, self).__init__(tts)
+        super(SpdSayValidator, self).__init__(tts)
 
     def validate_lang(self):
         # TODO
@@ -38,12 +38,11 @@ class GoogleTTSValidator(TTSValidator):
 
     def validate_connection(self):
         try:
-            gTTS(text='Hi').save(self.tts.filename)
+            subprocess.call(['spd-say', '--version'])
         except Exception:
             raise Exception(
-                'GoogleTTS server could not be verified. Please check your '
-                'internet connection.')
+                'SpdSay is not installed. Run: sudo apt-get install '
+                'speech-dispatcher')
 
     def get_tts_class(self):
-        return GoogleTTS
-
+        return SpdSay

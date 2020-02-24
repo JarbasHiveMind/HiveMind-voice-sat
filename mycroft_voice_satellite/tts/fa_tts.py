@@ -14,35 +14,35 @@
 #
 import requests
 
-from voice_satellite.tts import TTSValidator
-from voice_satellite.tts.remote_tts import RemoteTTS
+from mycroft_voice_satellite.tts import TTSValidator
+from mycroft_voice_satellite.tts.remote_tts import RemoteTTS
 
 
-class MaryTTS(RemoteTTS):
+class FATTS(RemoteTTS):
     PARAMS = {
-        'LOCALE': 'en_US',
-        'VOICE': 'cmu-slt-hsmm',
-        'INPUT_TEXT': 'Hello World',
-        'INPUT_TYPE': 'TEXT',
-        'AUDIO': 'WAVE_FILE',
-        'OUTPUT_TYPE': 'AUDIO'
+        'voice[name]': 'cmu-slt-hsmm',
+        'input[type]': 'TEXT',
+        'input[locale]': 'en_US',
+        'input[content]': 'Hello World',
+        'output[format]': 'WAVE_FILE',
+        'output[type]': 'AUDIO'
     }
 
     def __init__(self, lang, config):
-        super(MaryTTS, self).__init__(lang, config, config.get('url'),
-                                      '/process', MaryTTSValidator(self))
+        super(FATTS, self).__init__(lang, config, '/say',
+                                    FATTSValidator(self))
 
     def build_request_params(self, sentence):
         params = self.PARAMS.copy()
-        params['LOCALE'] = self.lang
-        params['VOICE'] = self.voice
-        params['INPUT_TEXT'] = sentence.encode('utf-8')
+        params['voice[name]'] = self.voice
+        params['input[locale]'] = self.lang
+        params['input[content]'] = sentence.encode('utf-8')
         return params
 
 
-class MaryTTSValidator(TTSValidator):
+class FATTSValidator(TTSValidator):
     def __init__(self, tts):
-        super(MaryTTSValidator, self).__init__(tts)
+        super(FATTSValidator, self).__init__(tts)
 
     def validate_lang(self):
         # TODO
@@ -50,13 +50,14 @@ class MaryTTSValidator(TTSValidator):
 
     def validate_connection(self):
         try:
-            resp = requests.get(self.tts.url + "/version", verify=False)
-            if resp.status_code == 200:
-                return True
+            resp = requests.get(self.tts.url + "/info/version", verify=False)
+            content = resp.json()
+            if content.get('product', '').find('FA-TTS') < 0:
+                raise Exception('Invalid FA-TTS server.')
         except Exception:
             raise Exception(
-                'MaryTTS server could not be verified. Check your connection '
+                'FA-TTS server could not be verified. Check your connection '
                 'to the server: ' + self.tts.url)
 
     def get_tts_class(self):
-        return MaryTTS
+        return FATTS

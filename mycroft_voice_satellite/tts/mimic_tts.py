@@ -14,7 +14,7 @@
 #
 import subprocess
 from time import time
-from voice_satellite.tts import TTSValidator, TTS
+from mycroft_voice_satellite.tts import TTSValidator, TTS
 from jarbas_utils.log import LOG
 
 
