@@ -7,7 +7,7 @@ from jarbas_utils.log import LOG
 from jarbas_utils import create_daemon
 from jarbas_utils.messagebus import Message
 
-platform = "JarbasVoiceTerminalv0.3"
+platform = "JarbasVoiceTerminalV1.0"
 
 
 class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
@@ -31,7 +31,7 @@ class JarbasVoiceTerminal(HiveMindTerminal):
     def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config = config
-        self.loop = RecognizerLoop(self.config)
+        self.loop = RecognizerLoop()
         lang = self.config.get("lang", "en")
         tts = self.config.get("tts", {"module": "google"})["module"]
         tts_config = self.config.get("tts", {}).get(tts, {})

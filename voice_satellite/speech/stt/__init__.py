@@ -15,21 +15,21 @@
 import re
 import json
 from abc import ABCMeta, abstractmethod
-from requests import post, put
+from requests import post, put, exceptions
 from speech_recognition import Recognizer
 from queue import Queue
 from threading import Thread
-from os.path import join, isdir, expanduser
 
+from voice_satellite.configuration import CONFIGURATION
 from jarbas_utils.log import LOG
-from jarbas_hive_mind.configuration import CONFIGURATION
 
 
 class STT(metaclass=ABCMeta):
     """ STT Base class, all  STT backends derives from this one. """
     def __init__(self):
-        self.lang = str(self.init_language(CONFIGURATION))
-        config_stt = CONFIGURATION.get("stt", {})
+        config_core = CONFIGURATION
+        self.lang = str(self.init_language(config_core))
+        config_stt = config_core.get("stt", {})
         self.config = config_stt.get(config_stt.get("module"), {})
         self.credential = self.config.get("credential", {})
         self.recognizer = Recognizer()
@@ -46,6 +46,148 @@ class STT(metaclass=ABCMeta):
     @abstractmethod
     def execute(self, audio, language=None):
         pass
+
+
+class TokenSTT(STT, metaclass=ABCMeta):
+    def __init__(self):
+        super(TokenSTT, self).__init__()
+        self.token = self.credential.get("token")
+
+
+class GoogleJsonSTT(STT, metaclass=ABCMeta):
+    def __init__(self):
+        super(GoogleJsonSTT, self).__init__()
+        self.json_credentials = json.dumps(self.credential.get("json"))
+
+
+class BasicSTT(STT, metaclass=ABCMeta):
+
+    def __init__(self):
+        super(BasicSTT, self).__init__()
+        self.username = str(self.credential.get("username"))
+        self.password = str(self.credential.get("password"))
+
+
+class KeySTT(STT, metaclass=ABCMeta):
+
+    def __init__(self):
+        super(KeySTT, self).__init__()
+        self.id = str(self.credential.get("client_id"))
+        self.key = str(self.credential.get("client_key"))
+
+
+class GoogleSTT(TokenSTT):
+    def execute(self, audio, language=None):
+        self.lang = language or self.lang
+        return self.recognizer.recognize_google(audio, self.token, self.lang)
+
+
+class GoogleCloudSTT(GoogleJsonSTT):
+    def __init__(self):
+        super(GoogleCloudSTT, self).__init__()
+        # override language with module specific language selection
+        self.lang = self.config.get('lang') or self.lang
+
+    def execute(self, audio, language=None):
+        self.lang = language or self.lang
+        return self.recognizer.recognize_google_cloud(audio,
+                                                      self.json_credentials,
+                                                      self.lang)
+
+
+class WITSTT(TokenSTT):
+    def execute(self, audio, language=None):
+        LOG.warning("WITSTT language should be configured at wit.ai settings.")
+        return self.recognizer.recognize_wit(audio, self.token)
+
+
+class IBMSTT(BasicSTT):
+
+    def execute(self, audio, language=None):
+        self.lang = language or self.lang
+        return self.recognizer.recognize_ibm(audio, self.username,
+                                             self.password, self.lang)
+
+
+class YandexSTT(TokenSTT):
+    """
+        Yandex SpeechKit STT
+        To use create service account with role 'editor' in your cloud folder,
+        create API key for account and add it to local mycroft.conf file.
+        The STT config will look like this:
+
+        "stt": {
+            "module": "yandex",
+            "yandex": {
+                "lang": "en-US",
+                "credential": {
+                    "token": "YOUR_API_KEY"
+                }
+            }
+        }
+    """
+
+    def execute(self, audio, language=None):
+        self.lang = language or self.lang
+        if self.lang not in ["en-US", "ru-RU", "tr-TR"]:
+            raise ValueError(
+                "Unsupported language '{}' for Yandex STT".format(self.lang))
+
+        # Select sample rate based on source sample rate
+        # and supported sample rate list
+        supported_sample_rates = [8000, 16000, 48000]
+        sample_rate = audio.sample_rate
+        if sample_rate not in supported_sample_rates:
+            for supported_sample_rate in supported_sample_rates:
+                if audio.sample_rate < supported_sample_rate:
+                    sample_rate = supported_sample_rate
+                    break
+            if sample_rate not in supported_sample_rates:
+                sample_rate = supported_sample_rates[-1]
+
+        raw_data = audio.get_raw_data(convert_rate=sample_rate,
+                                      convert_width=2)
+
+        # Based on https://cloud.yandex.com/docs/speechkit/stt#request
+        url = "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize"
+        headers = {"Authorization": "Api-Key {}".format(self.token)}
+        params = "&".join([
+            "lang={}".format(self.lang),
+            "format=lpcm",
+            "sampleRateHertz={}".format(sample_rate)
+        ])
+
+        response = post(url + "?" + params, headers=headers, data=raw_data)
+        if response.status_code == 200:
+            result = json.loads(response.text)
+            if result.get("error_code") is None:
+                return result.get("result")
+        elif response.status_code == 401:  # Unauthorized
+            raise Exception("Invalid API key for Yandex STT")
+        else:
+            raise Exception(
+                "Request to Yandex STT failed: code: {}, body: {}".format(
+                    response.status_code, response.text))
+
+
+
+
+
+class DeepSpeechServerSTT(STT):
+    """
+        STT interface for the deepspeech-server:
+        https://github.com/MainRo/deepspeech-server
+        use this if you want to host DeepSpeech yourself
+    """
+    def __init__(self):
+        super(DeepSpeechServerSTT, self).__init__()
+
+    def execute(self, audio, language=None):
+        language = language or self.lang
+        if not language.startswith("en"):
+            raise ValueError("Deepspeech is currently english only")
+        response = post(self.config.get("uri"), data=audio.get_wav_data())
+        return response.text
 
 
 class StreamThread(Thread, metaclass=ABCMeta):
@@ -114,222 +256,7 @@ class StreamingSTT(STT, metaclass=ABCMeta):
         pass
 
 
-class TokenSTT(STT, metaclass=ABCMeta):
-    def __init__(self):
-        super(TokenSTT, self).__init__()
-        # do not string cast, if token is none uses default test key
-        # free google instead of no google
-        self.token = self.credential.get("token")
-
-
-class GoogleJsonSTT(STT, metaclass=ABCMeta):
-    def __init__(self):
-        super(GoogleJsonSTT, self).__init__()
-        self.json_credentials = json.dumps(self.credential.get("json"))
-
-
-class BasicSTT(STT, metaclass=ABCMeta):
-
-    def __init__(self):
-        super(BasicSTT, self).__init__()
-        self.username = str(self.credential.get("username"))
-        self.password = str(self.credential.get("password"))
-
-
-class KeySTT(STT, metaclass=ABCMeta):
-
-    def __init__(self):
-        super(KeySTT, self).__init__()
-        self.id = str(self.credential.get("client_id"))
-        self.key = str(self.credential.get("client_key"))
-
-
-class GoogleSTT(TokenSTT):
-    def __init__(self):
-        super(GoogleSTT, self).__init__()
-
-    def execute(self, audio, language=None):
-        self.lang = language or self.lang
-        return self.recognizer.recognize_google(audio, self.token, self.lang)
-
-
-class GoogleCloudSTT(GoogleJsonSTT):
-    def __init__(self):
-        super(GoogleCloudSTT, self).__init__()
-        # override language with module specific language selection
-        self.lang = self.config.get('lang') or self.lang
-
-    def execute(self, audio, language=None):
-        self.lang = language or self.lang
-        return self.recognizer.recognize_google_cloud(audio,
-                                                      self.json_credentials,
-                                                      self.lang)
-
-
-class WITSTT(TokenSTT):
-    def __init__(self):
-        super(WITSTT, self).__init__()
-
-    def execute(self, audio, language=None):
-        LOG.warning("WITSTT language should be configured at wit.ai settings.")
-        return self.recognizer.recognize_wit(audio, self.token)
-
-
-class IBMSTT(BasicSTT):
-    def __init__(self):
-        super(IBMSTT, self).__init__()
-
-    def execute(self, audio, language=None):
-        self.lang = language or self.lang
-        return self.recognizer.recognize_ibm(audio, self.username,
-                                             self.password, self.lang)
-
-
-class YandexSTT(TokenSTT):
-    """
-        Yandex SpeechKit STT
-        To use create service account with role 'editor' in your cloud folder,
-        create API key for account and add it to local mycroft.conf file.
-        The STT config will look like this:
-
-        "stt": {
-            "module": "yandex",
-            "yandex": {
-                "lang": "en-US",
-                "credential": {
-                    "token": "YOUR_API_KEY"
-                }
-            }
-        }
-    """
-    def __init__(self):
-        super(YandexSTT, self).__init__()
-        self.lang = self.config.get('lang') or self.lang
-
-        if self.token is None:
-            raise ValueError("API key for Yandex STT is not defined")
-
-    def execute(self, audio, language=None):
-        self.lang = language or self.lang
-        if self.lang not in ["en-US", "ru-RU", "tr-TR"]:
-            raise ValueError(
-                "Unsupported language '{}' for Yandex STT".format(self.lang))
-
-        # Select sample rate based on source sample rate
-        # and supported sample rate list
-        supported_sample_rates = [8000, 16000, 48000]
-        sample_rate = audio.sample_rate
-        if sample_rate not in supported_sample_rates:
-            for supported_sample_rate in supported_sample_rates:
-                if audio.sample_rate < supported_sample_rate:
-                    sample_rate = supported_sample_rate
-                    break
-            if sample_rate not in supported_sample_rates:
-                sample_rate = supported_sample_rates[-1]
-
-        raw_data = audio.get_raw_data(convert_rate=sample_rate,
-                                      convert_width=2)
-
-        # Based on https://cloud.yandex.com/docs/speechkit/stt#request
-        url = "https://stt.api.cloud.yandex.net/speech/v1/stt:recognize"
-        headers = {"Authorization": "Api-Key {}".format(self.token)}
-        params = "&".join([
-            "lang={}".format(self.lang),
-            "format=lpcm",
-            "sampleRateHertz={}".format(sample_rate)
-        ])
-
-        response = post(url + "?" + params, headers=headers, data=raw_data)
-        if response.status_code == 200:
-            result = json.loads(response.text)
-            if result.get("error_code") is None:
-                return result.get("result")
-        elif response.status_code == 401:  # Unauthorized
-            raise Exception("Invalid API key for Yandex STT")
-        else:
-            raise Exception(
-                "Request to Yandex STT failed: code: {}, body: {}".format(
-                    response.status_code, response.text))
-
-
-class DeepSpeechSTT(STT):
-    """
-    Local STT interface for the deepspeech
-    """
-    def __init__(self):
-        global np
-        super(DeepSpeechSTT, self).__init__()
-        from deepspeech import Model
-        import numpy as np
-        base_path = expanduser(self.config.get("model_path", "~/deepspeech-0.6.1-models"))
-        if not isdir(base_path):
-            raise ValueError("deepspeech model not found at {path}".format(path=base_path))
-        lm = join(base_path, "lm.binary")
-        trie = join(base_path, "trie")
-        pb = join(base_path, "output_graph.pb")
-
-        BEAM_WIDTH = self.config.get("beam_width", 500)
-        LM_ALPHA =  self.config.get("lm_alpha", 0.75)
-        LM_BETA =  self.config.get("lm_beta", 1.85)
-
-        self.ds = Model(pb, BEAM_WIDTH)
-        self.ds.enableDecoderWithLM(lm, trie, LM_ALPHA, LM_BETA)
-
-    def execute(self, audio, language=None):
-        audio = np.frombuffer(audio.get_wav_data(), dtype=np.int16)
-        return self.ds.stt(audio)
-
-
 class DeepSpeechStreamThread(StreamThread):
-    def __init__(self, queue, language, ds):
-        super().__init__(queue, language)
-        self.ds = ds
-        self.ds_stream = self.ds.createStream()
-
-    def handle_audio_stream(self, audio, language):
-        for a in audio:
-            self.ds.feedAudioContent(self.ds_stream, np.frombuffer(a, np.int16))
-        # Expensive
-        # https://deepspeech.readthedocs.io/en/latest/Python-API.html#native_client.python.Model.intermediateDecode
-        # self.text = self.ds.intermediateDecode(self.ds_stream)
-
-    def finish_stream(self):
-        self.text = self.ds.finishStream(self.ds_stream)
-
-
-class DeepSpeechStreamingSTT(DeepSpeechSTT, StreamingSTT):
-    def create_streaming_thread(self):
-        self.queue = Queue()
-        return DeepSpeechStreamThread(
-            self.queue,
-            self.lang,
-            self.ds
-        )
-
-    def execute(self, audio, language=None):
-        if self.stream:
-            self.stream.finish_stream()
-        return self.stream_stop()
-
-
-class DeepSpeechServerSTT(STT):
-    """
-        STT interface for the deepspeech-server:
-        https://github.com/MainRo/deepspeech-server
-        use this if you want to host DeepSpeech yourself
-    """
-    def __init__(self):
-        super(DeepSpeechServerSTT, self).__init__()
-
-    def execute(self, audio, language=None):
-        language = language or self.lang
-        if not language.startswith("en"):
-            raise ValueError("Deepspeech is currently english only")
-        response = post(self.config.get("uri"), data=audio.get_wav_data())
-        return response.text
-
-
-class DeepSpeechServerStreamThread(StreamThread):
     def __init__(self, queue, language, url):
         if not language.startswith("en"):
             raise ValueError("Deepspeech is currently english only")
@@ -451,8 +378,9 @@ class KaldiSTT(STT):
 
 
 class PocketSphinxSTT(BasicSTT):
-    def __init__(self):
+    def __init__(self, lang="en-us", config=None):
         super(PocketSphinxSTT, self).__init__()
+        global PS_Recognizer
         from voice_satellite.speech.stt.pocketsphinx_stt import PS_Recognizer
         self.recognizer = PS_Recognizer(self.lang)
 
@@ -460,7 +388,6 @@ class PocketSphinxSTT(BasicSTT):
         language = language or self.lang
         if language != self.lang:
             LOG.info("Changing decoder language")
-            from voice_satellite.speech.stt import PS_Recognizer
             self.lang = language
             self.recognizer = PS_Recognizer(self.lang)
 
@@ -468,9 +395,6 @@ class PocketSphinxSTT(BasicSTT):
 
 
 class BingSTT(TokenSTT):
-    def __init__(self):
-        super(BingSTT, self).__init__()
-
     def execute(self, audio, language=None):
         self.lang = language or self.lang
         return self.recognizer.recognize_bing(audio, self.token,
@@ -478,9 +402,6 @@ class BingSTT(TokenSTT):
 
 
 class HoundifySTT(KeySTT):
-    def __init__(self):
-        super(HoundifySTT, self).__init__()
-
     def execute(self, audio, language=None):
         self.lang = language or self.lang
         return self.recognizer.recognize_houndify(audio, self.id, self.key)
@@ -517,8 +438,6 @@ class STTFactory:
         "bing": BingSTT,
         "govivace": GoVivaceSTT,
         "houndify": HoundifySTT,
-        "deepspeech": DeepSpeechSTT,
-        "deepspeech_streaming": DeepSpeechStreamingSTT,
         "deepspeech_server": DeepSpeechServerSTT,
         "deepspeech_stream_server": DeepSpeechStreamServerSTT,
         "yandex": YandexSTT,

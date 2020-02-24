@@ -1,14 +1,19 @@
 from json_database import JsonStorage
 from os.path import expanduser, exists
 
+
 _DEFAULT_CONFIG_PATH = expanduser("~/.jarbasHiveMind/voice_sat.conf")
 
 
-def default_config():
+def get_default_config():
     default = JsonStorage(_DEFAULT_CONFIG_PATH)
     default["lang"] = "en-us"
     default["host"] = "0.0.0.0"
     default["port"] = 5678
+    default["data_dir"] = "~/jarbasHiveMind"
+    default["tts"] = {
+        "module": "google"
+    }
     default["stt"] = {
         "module": "google",
         "deepspeech_server": {
@@ -26,7 +31,6 @@ def default_config():
         "phoneme_duration": 120,
         "multiplier": 1.0,
         "energy_ratio": 1.5,
-        "wake_word": "hey mycroft",
         "stand_up_word": "wake up"
     }
     default["hotwords"] = {
@@ -34,7 +38,9 @@ def default_config():
             "module": "pocketsphinx",
             "phonemes": "HH EY . M AY K R AO F T",
             "threshold": 1e-90,
-            "lang": "en-us"
+            "lang": "en-us",
+            "sound": "snd/start_listening.wav",
+            "listen": True
         },
         "thank you": {
             "module": "pocketsphinx",
@@ -57,8 +63,29 @@ def default_config():
     return default
 
 
+DEFAULT_CONFIGURATION = get_default_config()
+
 if not exists(_DEFAULT_CONFIG_PATH):
-    CONFIGURATION = default_config()
-    CONFIGURATION.store()
-else:
-    CONFIGURATION = JsonStorage(_DEFAULT_CONFIG_PATH)
+    DEFAULT_CONFIGURATION.store()
+
+
+def merge_dict(base, delta):
+    """
+        Recursively merging configuration dictionaries.
+
+        Args:
+            base:  Target for merge
+            delta: Dictionary to merge into base
+    """
+
+    for k, dv in delta.items():
+        bv = base.get(k)
+        if isinstance(dv, dict) and isinstance(bv, dict):
+            merge_dict(bv, dv)
+        else:
+            base[k] = dv
+    return base
+
+
+CONFIGURATION = JsonStorage(_DEFAULT_CONFIG_PATH)
+CONFIGURATION = merge_dict(DEFAULT_CONFIGURATION, CONFIGURATION)
