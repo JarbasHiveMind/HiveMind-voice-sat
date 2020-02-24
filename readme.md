@@ -25,6 +25,13 @@ pip install git+https://github.com/OpenJarbas/HiveMind-voice-sat
 
 ### Usage
 
+TODO: arg parse not implemented
+```bash
+python -m voice_satellite
+```
+
+or in a script
+
 ```python
 
 from voice_satellite.configuration import CONFIGURATION
@@ -49,6 +56,11 @@ def connect_to_hivemind(config=CONFIGURATION, host="wss://127.0.0.1",
                                    useragent=useragent)
 
     con.connect(terminal)
+
+
+if __name__ == '__main__':
+    # TODO argparse
+    connect_to_hivemind()
 
 ```
 ### Configuration
