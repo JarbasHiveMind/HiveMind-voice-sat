@@ -40,15 +40,23 @@ from mycroft_voice_satellite.configuration import CONFIGURATION
 
 if __name__ == '__main__':
     # TODO argparse
+    
     config = CONFIGURATION
+    # wss for https, ws for http
     host = "wss://127.0.0.1"
     port = 5678
+    
+    # name is a currently placeholder nickname and not used for authentication
     name = "JarbasVoiceTerminal"
+    
+    # key is the authentication key registered in hivemind-core
     key = "dummy_key"
+    
+    # crypto_key is used to de/encrypt all messages and must match crypto-key stored in hivemind-core
     crypto_key = None
 
+    # blocks here, auto-reconnects on disconnect
     connect_to_hivemind(config, host, port, name, key, crypto_key)
-
 
 ```
 ### Configuration
