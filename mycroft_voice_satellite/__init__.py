@@ -62,6 +62,9 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         elif tts == "fa":
             from mycroft_voice_satellite.tts.fa_tts import FATTS
             self.tts = FATTS(lang, tts_config)
+        elif tts == "responsive_voice":
+            from mycroft_voice_satellite.tts.responsive_voice_tts import ResponsiveVoiceTTS
+            self.tts = ResponsiveVoiceTTS(lang, tts_config)
         else:
             raise ValueError("Unknown TTS engine")
 

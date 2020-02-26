@@ -12,7 +12,7 @@ def get_default_config():
     default["port"] = 5678
     default["data_dir"] = "~/jarbasHiveMind/recordings"
     default["tts"] = {
-        "module": "google"
+        "module": "responsive_voice"
     }
     default["stt"] = {
         "module": "google",

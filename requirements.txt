@@ -6,3 +6,4 @@ PyAudio==0.2.11
 pocketsphinx==0.1.15
 jarbas_utils
 gtts
+ResponsiveVoice>=0.5.2
