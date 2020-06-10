@@ -1,6 +1,7 @@
 # HiveMind Voice Satellite
 
-Mycroft Voice Satellite, connect to [HiveMind-core](https://github.com/OpenJarbas/HiveMind-core)
+Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/JarbasSkills/skill-hivemind)
+
 
 * [Setup](#setup)
 * [Usage](#usage)
@@ -17,7 +18,7 @@ Mycroft Voice Satellite, connect to [HiveMind-core](https://github.com/OpenJarba
 ## Setup
 
 ```bash
-pip install git+https://github.com/OpenJarbas/HiveMind-voice-sat
+pip install HiveMind-voice-sat
 ```
 
 ## Usage

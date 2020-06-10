@@ -1,9 +1,10 @@
-jarbas_hive_mind>=0.8.0
-SpeechRecognition==3.8.1
+speech2text
+text2speech
+psutil
+jarbas_hive_mind>=0.10.3
 pyee
 requests
 PyAudio==0.2.11
 pocketsphinx==0.1.15
 jarbas_utils
-gtts
-ResponsiveVoice>=0.5.2
+requests_futures

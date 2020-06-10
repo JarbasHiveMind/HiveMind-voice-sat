@@ -27,7 +27,7 @@ from mycroft_voice_satellite.configuration import CONFIGURATION
 from mycroft_voice_satellite.speech.hotword_factory import HotWordFactory
 from mycroft_voice_satellite.speech.mic import MutableMicrophone, \
     ResponsiveRecognizer
-from mycroft_voice_satellite.speech.stt import STTFactory
+from speech2text import STTFactory
 from queue import Queue, Empty
 from jarbas_utils.log import LOG
 

@@ -6,8 +6,14 @@ from jarbas_hive_mind import HiveMindConnection
 from jarbas_utils.log import LOG
 from jarbas_utils import create_daemon
 from jarbas_utils.messagebus import Message
+from text2speech import TTSFactory
+from tempfile import gettempdir
+from os.path import join, isdir
+from os import makedirs
+from jarbas_utils.sound import play_audio
 
-platform = "JarbasVoiceTerminalV1.0"
+
+platform = "JarbasVoiceTerminalV2.0"
 
 
 class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
@@ -32,45 +38,19 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         super().__init__(*args, **kwargs)
         self.config = config
         self.loop = RecognizerLoop()
-        lang = self.config.get("lang", "en")
-        tts = self.config.get("tts", {"module": "google"})["module"]
-        tts_config = self.config.get("tts", {}).get(tts, {})
-        if tts == "google":
-            from mycroft_voice_satellite.tts.google_tts import GoogleTTS
-            self.tts = GoogleTTS(lang, tts_config)
-        elif tts == "espeak":
-            from mycroft_voice_satellite.tts.espeak_tts import ESpeak
-            self.tts = ESpeak(lang, tts_config)
-        elif tts == "mimic":
-            from mycroft_voice_satellite.tts.mimic_tts import Mimic
-            self.tts = Mimic(lang, tts_config)
-        elif tts == "watson":
-            from mycroft_voice_satellite.tts.ibm_tts import WatsonTTS
-            self.tts = WatsonTTS(lang, tts_config)
-        elif tts == "yandex":
-            from mycroft_voice_satellite.tts.yandex_tts import YandexTTS
-            self.tts = YandexTTS(lang, tts_config)
-        elif tts == "spdsay":
-            from mycroft_voice_satellite.tts.spdsay_tts import SpdSay
-            self.tts = SpdSay(lang, tts_config)
-        elif tts == "mary":
-            from mycroft_voice_satellite.tts.mary_tts import MaryTTS
-            self.tts = MaryTTS(lang, tts_config)
-        elif tts == "bing":
-            from mycroft_voice_satellite.tts.bing_tts import BingTTS
-            self.tts = BingTTS(lang, tts_config)
-        elif tts == "fa":
-            from mycroft_voice_satellite.tts.fa_tts import FATTS
-            self.tts = FATTS(lang, tts_config)
-        elif tts == "responsive_voice":
-            from mycroft_voice_satellite.tts.responsive_voice_tts import ResponsiveVoiceTTS
-            self.tts = ResponsiveVoiceTTS(lang, tts_config)
-        else:
-            raise ValueError("Unknown TTS engine")
+        self.tts = TTSFactory.create(self.config)
+        self.tts.validate()
 
     # Voice Output
     def speak(self, utterance):
-        self.tts.execute(utterance)
+        LOG.info("SPEAK: " + utterance)
+        temppath = join(gettempdir(), self.tts.tts_name)
+        if not isdir(temppath):
+            makedirs(temppath)
+        file_path = join(temppath, str(hash(utterance))[1:] +
+                         "." + self.tts.audio_ext)
+        self.tts.get_tts(utterance, file_path)
+        play_audio(file_path).wait()
 
     # Voice Input
     def handle_record_begin(self):
@@ -175,14 +155,14 @@ class JarbasVoiceTerminal(HiveMindTerminal):
 
 def connect_to_hivemind(config=CONFIGURATION, host="wss://127.0.0.1",
                         port=5678, name="JarbasVoiceTerminal",
-                        key="dummy_key", crypto_key=None,
-
+                        access_key="RESISTENCEisFUTILE",
+                        crypto_key="resistanceISfutile",
                         useragent=platform):
     con = HiveMindConnection(host, port)
 
     terminal = JarbasVoiceTerminal(config=config,
                                    crypto_key=crypto_key,
-                                   headers=con.get_headers(name, key),
+                                   headers=con.get_headers(name, access_key),
                                    useragent=useragent)
 
     con.connect(terminal)
