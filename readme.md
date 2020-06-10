@@ -15,46 +15,38 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 ![](./voice_sat.png)
 
 
-## Setup
+## Install
 
 ```bash
-pip install HiveMind-voice-sat
+$ pip install HiveMind-voice-sat
 ```
-
 ## Usage
 
-TODO: arg parse not implemented
+If host is not provided auto discovery will be used
+
 ```bash
-python -m mycroft_voice_satellite
+$ HiveMind-voice-sat --help
+
+usage: HiveMind-voice-sat [-h] [--access_key ACCESS_KEY] [--crypto_key CRYPTO_KEY] [--name NAME] [--host HOST] [--port PORT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --access_key ACCESS_KEY
+                        access key
+  --crypto_key CRYPTO_KEY
+                        payload encryption key
+  --name NAME           human readable device name
+  --host HOST           HiveMind host
+  --port PORT           HiveMind port number
 ```
 
-or in a script
+Default values are
 
-```python
-
-from mycroft_voice_satellite import connect_to_hivemind
-from mycroft_voice_satellite.configuration import CONFIGURATION
-
-
-if __name__ == '__main__':
-    # TODO argparse
-    
-    config = CONFIGURATION
-    # wss for https, ws for http
-    host = "wss://127.0.0.1"
-    port = 5678
-    
-    # name is a currently placeholder nickname and not used for authentication
-    name = "JarbasVoiceTerminal"
-    
-    # key is the authentication key registered in hivemind-core
-    key = "dummy_key"
-    
-    # crypto_key is used to de/encrypt all messages and must match crypto-key stored in hivemind-core
-    crypto_key = None
-
-    # blocks here, auto-reconnects on disconnect
-    connect_to_hivemind(config, host, port, name, key, crypto_key)
+```
+--access_key - "RESISTENCEisFUTILE"
+--crypto_key - "resistanceISfutile"
+--name - "JarbasVoiceTerminal"
+--port" - 5678
 
 ```
 
@@ -71,13 +63,7 @@ Otherwise default configuration will be used, check bellow for defaults
 {
     "lang": "en-us",
     "stt": {
-        "module": "google",
-        "deepspeech_server": {
-            "uri": "http://localhost:8080/stt"
-        },
-        "kaldi": {
-            "uri": "http://localhost:8080/client/dynamic/recognize"
-        }
+        "module": "google"
     }
 }
 ```
