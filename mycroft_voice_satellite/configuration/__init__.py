@@ -1,8 +1,8 @@
 from json_database import JsonStorageXDG
-from os.path import exists
+from os.path import exists, expanduser
 
 DEFAULT_CONFIGURATION = {
-    'data_dir': '/home/user/jarbasHiveMind/recordings',
+    'data_dir': expanduser('~/jarbasHiveMind/recordings'),
     'host': '0.0.0.0',
     'hotwords': {'hey mycroft': {'lang': 'en-us',
                                  'listen': True,
