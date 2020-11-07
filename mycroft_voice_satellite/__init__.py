@@ -13,7 +13,7 @@ from os import makedirs
 from jarbas_utils.sound import play_audio
 
 
-platform = "JarbasVoiceTerminalV2.0"
+platform = "JarbasVoiceTerminalV2.1"
 
 
 class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
@@ -37,8 +37,9 @@ class JarbasVoiceTerminal(HiveMindTerminal):
     def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config = config
-        self.loop = RecognizerLoop()
-        self.tts = TTSFactory.create(self.config)
+        self.loop = RecognizerLoop(self.config)
+        self.tts = TTSFactory.create(self.config["tts"])
+        LOG.debug("Using TTS engine: " + self.tts.__class__.__name__)
         self.tts.validate()
 
     # Voice Output
@@ -158,6 +159,7 @@ def connect_to_hivemind(config=CONFIGURATION, host="wss://127.0.0.1",
                         access_key="RESISTENCEisFUTILE",
                         crypto_key="resistanceISfutile",
                         useragent=platform):
+
     con = HiveMindConnection(host, port)
 
     terminal = JarbasVoiceTerminal(config=config,

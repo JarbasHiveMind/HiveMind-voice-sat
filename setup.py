@@ -2,8 +2,10 @@ from setuptools import setup
 
 setup(
     name='HiveMind-voice-sat',
-    version='1.0.1',
-    packages=['mycroft_voice_satellite'],
+    version='1.0.3',
+    packages=['mycroft_voice_satellite', 'mycroft_voice_satellite.speech',
+              'mycroft_voice_satellite.res',
+              'mycroft_voice_satellite.configuration'],
     install_requires=["jarbas_hive_mind>=0.10.3",
                       "speech2text",
                       "pyee",

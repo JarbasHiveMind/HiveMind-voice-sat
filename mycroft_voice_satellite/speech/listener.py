@@ -293,14 +293,14 @@ class RecognizerLoop(EventEmitter):
     Local wake word recognizer and remote general speech recognition.
     """
 
-    def __init__(self):
+    def __init__(self, config=None):
         super(RecognizerLoop, self).__init__()
         self.mute_calls = 0
-        self._load_config()
+        self._load_config(config)
 
-    def _load_config(self):
+    def _load_config(self, config):
         """Load configuration parameters from configuration."""
-        config = CONFIGURATION
+        config = config or CONFIGURATION
         self.config_core = config
         self.lang = config.get('lang')
         self.config = config.get('listener')
@@ -349,11 +349,12 @@ class RecognizerLoop(EventEmitter):
     def start_async(self):
         """Start consumer and producer threads."""
         self.state.running = True
-        stt = STTFactory.create()
+        stt = STTFactory.create(self.config_core["stt"])
         queue = Queue()
         stream_handler = None
         if stt.can_stream:
             stream_handler = AudioStreamHandler(queue)
+        LOG.debug("Using STT engine: " + stt.__class__.__name__)
         self.producer = AudioProducer(self.state, queue, self.microphone,
                                       self.responsive_recognizer, self,
                                       stream_handler)

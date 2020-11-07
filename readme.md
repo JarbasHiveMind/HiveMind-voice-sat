@@ -54,7 +54,7 @@ Default values are
 
 You can set the configuration at
     
-    ~/.jarbasHiveMind/voice_sat.conf
+    ~/home/user/.cache/json_database/HivemindVoiceSatellite.json
     
 Otherwise default configuration will be used, check bellow for defaults
 
@@ -73,7 +73,7 @@ Otherwise default configuration will be used, check bellow for defaults
 {
     "lang": "en-us",
     "tts": {
-        "module": "google"
+        "module": "responsive_voice"
     }
 }
 ```

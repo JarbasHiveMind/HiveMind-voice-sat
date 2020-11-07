@@ -4,6 +4,7 @@ from jarbas_hive_mind.discovery import LocalDiscovery
 from jarbas_utils.log import LOG
 from time import sleep
 
+
 def discover_hivemind(name="JarbasVoiceTerminal",
                       access_key="RESISTENCEisFUTILE",
                       crypto_key="resistanceISfutile"):
@@ -11,7 +12,7 @@ def discover_hivemind(name="JarbasVoiceTerminal",
     headers = HiveMindConnection.get_headers(name, access_key)
 
     while True:
-        print("Scanning...")
+        LOG.info("Scanning...")
         for node_url in discovery.scan():
             LOG.info("Fetching Node data: {url}".format(url=node_url))
             node = discovery.nodes[node_url]
@@ -39,8 +40,9 @@ def main():
 
     if args.host:
         # Direct Connection
-        connect_to_hivemind(args.host, args.port,
-                            args.name, args.access_key, args.crypto_key)
+        connect_to_hivemind(host=args.host, port=args.port,
+                            name=args.name, access_key=args.access_key,
+                            crypto_key=args.crypto_key)
 
     else:
         # Auto discovery
