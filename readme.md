@@ -54,7 +54,7 @@ Default values are
 
 You can set the configuration at
     
-    ~/home/user/.cache/json_database/HivemindVoiceSatellite.json
+    ~/.cache/json_database/HivemindVoiceSatellite.json
     
 Otherwise default configuration will be used, check bellow for defaults
 
