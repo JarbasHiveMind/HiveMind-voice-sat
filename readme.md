@@ -130,7 +130,10 @@ add any number of hot words to config
         "phoneme_duration": 120,
         "multiplier": 1.0,
         "energy_ratio": 1.5,
-        "stand_up_word": "wake up"
+        "stand_up_word": "wake up",
+        "signal_folder": "/tmp/hivemind/ipc",
+        "listen_sound": "snd/start_listening.wav",
+        "error_sound": "snd/listening_error.mp3"
     }
 }
 ```
@@ -155,3 +158,27 @@ or device_name, which is a name or regex pattern
     }
 }
 ```  
+
+To trigger listening without a wakeword you can use an external signal
+
+```bash
+ touch {ipc_path}/signal/startListening
+```
+
+ipc_path can be set in config, default is ```/tmp/hivemind/ipc```
+
+### Configure audio playback
+
+you shouldn"t need to change this, a common change is replacing ```aplay``` with ```paplay``` when using pulseaudio, or use sox for everything
+
+```json
+{
+    "playback": {
+        "play_wav_cmd": "aplay %1",
+        "play_mp3_cmd": "mpg123 %1",
+        "play_ogg_cmd": "ogg123 -q %1",
+        "play_fallback_cmd": "play %1"
+    }
+}
+
+```
