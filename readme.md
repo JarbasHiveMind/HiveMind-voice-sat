@@ -8,8 +8,9 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 * [Configuration](#configuration)
   - [configure speech to text](#configure-speech-to-text)
   - [configure text to speech](#configure-text-to-speech)
-  - [Configure hotwords](#configure-hotwords)
+  - [configure hotwords](#configure-hotwords)
   - [configure listener](#configure-listener)
+  - [configure audio playback](#configure-audio-playback)
 
 
 ![](./voice_sat.png)
