@@ -1,9 +1,11 @@
 from json_database import JsonStorageXDG
-from os.path import exists, expanduser
+from os.path import exists, expanduser, join
+from tempfile import gettempdir
 
 DEFAULT_CONFIGURATION = {
     'data_dir': expanduser('~/jarbasHiveMind/recordings'),
     'host': '0.0.0.0',
+    'port': 5678,
     'hotwords': {'hey mycroft': {'lang': 'en-us',
                                  'listen': True,
                                  'module': 'pocketsphinx',
@@ -30,9 +32,10 @@ DEFAULT_CONFIGURATION = {
                  'record_utterances': False,
                  'record_wake_words': False,
                  'sample_rate': 16000,
-                 'stand_up_word': 'wake up'},
-    'log_blacklist': [],
-    'port': 5678,
+                 'stand_up_word': 'wake up',
+                 'signal_folder': join(gettempdir(), "hivemind", "ipc"),
+                 'listen_sound': 'snd/start_listening.wav',
+                 'error_sound': 'snd/listening_error.mp3'},
     'stt': {'deepspeech_server': {'uri': 'http://localhost:8080/stt'},
             'deepspeech_stream_server': {
                 'stream_uri': 'http://localhost:8080/stt?format=16K_PCM16'},
@@ -45,7 +48,15 @@ DEFAULT_CONFIGURATION = {
             "deepspeech_streaming": {"model": "path/to/model.pbmm",
                                      "scorer": "path/to/model.scorer"},
             'module': 'google'},
-    'tts': {'module': 'responsive_voice'}}
+    'tts': {'module': 'responsive_voice'},
+    'playback': {
+        'play_wav_cmd': "aplay %1",
+        'play_mp3_cmd': "mpg123 %1",
+        'play_ogg_cmd': "ogg123 -q %1",
+        'play_fallback_cmd': "play %1"
+    },
+    'log_blacklist': []
+}
 
 
 def _merge_defaults(base, default=None):

@@ -10,7 +10,8 @@ from text2speech import TTSFactory
 from tempfile import gettempdir
 from os.path import join, isdir
 from os import makedirs
-from jarbas_utils.sound import play_audio
+from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
+    play_wav, resolve_resource_file
 
 
 platform = "JarbasVoiceTerminalV2.1"
@@ -48,10 +49,20 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         temppath = join(gettempdir(), self.tts.tts_name)
         if not isdir(temppath):
             makedirs(temppath)
-        file_path = join(temppath, str(hash(utterance))[1:] +
-                         "." + self.tts.audio_ext)
-        self.tts.get_tts(utterance, file_path)
-        play_audio(file_path).wait()
+        audio_file = join(temppath, str(hash(utterance))[1:] +
+                          "." + self.tts.audio_ext)
+        self.tts.get_tts(utterance, audio_file)
+        try:
+            if audio_file.endswith(".wav"):
+                play_wav(audio_file).wait()
+            elif audio_file.endswith(".mp3"):
+                play_mp3(audio_file).wait()
+            elif audio_file.endswith(".ogg"):
+                play_ogg(audio_file).wait()
+            else:
+                play_audio(audio_file).wait()
+        except Exception as e:
+            LOG.warning(e)
 
     # Voice Input
     def handle_record_begin(self):

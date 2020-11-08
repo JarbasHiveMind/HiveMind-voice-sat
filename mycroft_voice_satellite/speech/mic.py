@@ -31,7 +31,8 @@ from threading import Lock
 
 from mycroft_voice_satellite.configuration import CONFIGURATION
 from mycroft_voice_satellite.speech.signal import check_for_signal
-from jarbas_utils.sound import play_ogg, play_mp3, play_wav, play_audio
+from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
+    play_wav, resolve_resource_file
 from jarbas_utils.log import LOG
 from jarbas_utils.lang.phonemes import get_phonemes
 
@@ -407,18 +408,19 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
     def sec_to_bytes(sec, source):
         return int(sec * source.SAMPLE_RATE) * source.SAMPLE_WIDTH
 
-    def _skip_wake_word(self):
+    def _skip_wake_word(self, source):
         """Check if told programatically to skip the wake word
 
         For example when we are in a dialog with the user.
         """
-        # TODO: remove startListening signal check in 20.02
+
+        signaled = False
         if check_for_signal('startListening') or self._listen_triggered:
-            return True
+            signaled = True
 
         # Pressing the Mark 1 button can start recording (unless
         # it is being used to mean 'stop' instead)
-        if check_for_signal('buttonPress', 1):
+        elif check_for_signal('buttonPress', 1):
             # give other processes time to consume this signal if
             # it was meant to be a 'stop'
             sleep(0.25)
@@ -426,9 +428,30 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                 # Signal is still here, assume it was intended to
                 # begin recording
                 LOG.debug("Button Pressed, wakeword not needed")
-                return True
+                signaled = True
 
-        return False
+        if signaled:
+            LOG.info("Listen signal detected")
+            # If enabled, play a wave file with a short sound to audibly
+            # indicate listen signal was detected.
+            sound = self.config["listener"].get('listen_sound') or \
+                    "snd/start_listening.wav"
+            try:
+                audio_file = resolve_resource_file(sound)
+                source.mute()
+                if audio_file.endswith(".wav"):
+                    play_wav(audio_file).wait()
+                elif audio_file.endswith(".mp3"):
+                    play_mp3(audio_file).wait()
+                elif audio_file.endswith(".ogg"):
+                    play_ogg(audio_file).wait()
+                else:
+                    play_audio(audio_file).wait()
+                source.unmute()
+            except Exception as e:
+                LOG.warning(e)
+
+        return signaled
 
     def stop(self):
         """
@@ -495,7 +518,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         ww_frames = deque(maxlen=7)
 
         while not said_wake_word and not self._stop_signaled:
-            if self._skip_wake_word():
+            if self._skip_wake_word(source):
                 break
             chunk = self.record_sound_chunk(source)
             ww_frames.append(chunk)

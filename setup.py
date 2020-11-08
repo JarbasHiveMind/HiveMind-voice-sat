@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='HiveMind-voice-sat',
-    version='1.0.4',
+    version='1.0.5',
     packages=['mycroft_voice_satellite', 'mycroft_voice_satellite.speech',
               'mycroft_voice_satellite.res',
               'mycroft_voice_satellite.configuration'],

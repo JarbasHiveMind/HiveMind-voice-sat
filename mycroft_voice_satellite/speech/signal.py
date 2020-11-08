@@ -16,6 +16,7 @@ import os
 import os.path
 import tempfile
 import time
+from mycroft_voice_satellite.configuration import CONFIGURATION
 
 
 def get_ipc_directory(domain=None):
@@ -31,8 +32,9 @@ def get_ipc_directory(domain=None):
     Returns:
         str: a path to the IPC directory
     """
-    dir = os.path.join(tempfile.gettempdir(), "mycroft", "ipc")
-    return ensure_directory_exists(dir, domain)
+    signal_path = CONFIGURATION["listener"].get("signal_folder") or \
+                  os.path.join(tempfile.gettempdir(), "hivemind", "ipc")
+    return ensure_directory_exists(signal_path, domain)
 
 
 def ensure_directory_exists(directory, domain=None):
@@ -104,7 +106,7 @@ def check_for_signal(signal_name, sec_lifetime=0):
     Returns:
         bool: True if the signal is defined, False otherwise
     """
-    path = os.path.join(get_ipc_directory(), "signal", signal_name)
+    path = os.path.join(get_ipc_directory(domain="signal"), signal_name)
     if os.path.isfile(path):
         if sec_lifetime == 0:
             # consume this single-use signal

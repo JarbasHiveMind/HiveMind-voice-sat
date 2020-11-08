@@ -30,7 +30,8 @@ from mycroft_voice_satellite.speech.mic import MutableMicrophone, \
 from speech2text import STTFactory
 from queue import Queue, Empty
 from jarbas_utils.log import LOG
-
+from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
+    play_wav, resolve_resource_file
 
 MAX_MIC_RESTARTS = 20
 
@@ -67,13 +68,13 @@ class AudioStreamHandler:
         self.queue = queue
 
     def stream_start(self):
-        self.queue.put((STREAM_START, None))
+        self.queue.put((STREAM_START, None, None))
 
-    def stream_chunk(self, chunk):
-        self.queue.put((STREAM_DATA, chunk))
+    def stream_chunk(self, chunk, source=None):
+        self.queue.put((STREAM_DATA, chunk, source))
 
     def stream_stop(self):
-        self.queue.put((STREAM_STOP, None))
+        self.queue.put((STREAM_STOP, None, None))
 
 
 class AudioProducer(Thread):
@@ -101,7 +102,7 @@ class AudioProducer(Thread):
                     audio = self.recognizer.listen(source, self.emitter,
                                                    self.stream_handler)
                     if audio is not None:
-                        self.queue.put((AUDIO_DATA, audio))
+                        self.queue.put((AUDIO_DATA, audio, source))
                     else:
                         LOG.warning("Audio contains no data.")
                 except IOError as e:
@@ -176,14 +177,14 @@ class AudioConsumer(Thread):
         if audio is None:
             return
 
-        tag, data = audio
+        tag, data, source = audio
 
         if tag == AUDIO_DATA:
             if data is not None:
                 if self.state.sleeping:
                     self.wake_up(data)
                 else:
-                    self.process(data)
+                    self.process(data, source)
         elif tag == STREAM_START:
             self.stt.stream_start()
         elif tag == STREAM_DATA:
@@ -204,11 +205,11 @@ class AudioConsumer(Thread):
                 audio.sample_rate * audio.sample_width)
 
     # TODO: Localization
-    def process(self, audio):
+    def process(self, audio, source=None):
         if self._audio_length(audio) < self.MIN_AUDIO_SIZE:
             LOG.warning("Audio too short to be processed")
         else:
-            transcription = self.transcribe(audio)
+            transcription = self.transcribe(audio, source)
             if transcription:
                 # STT succeeded, send the transcribed speech on for processing
                 payload = {
@@ -230,7 +231,7 @@ class AudioConsumer(Thread):
             'time': timestamp
         }
 
-    def transcribe(self, audio):
+    def transcribe(self, audio, source=None):
         def send_unknown_intent():
             """ Send message that nothing was transcribed. """
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
@@ -269,6 +270,26 @@ class AudioConsumer(Thread):
             send_unknown_intent()
             LOG.error(e)
             LOG.error("Speech Recognition could not understand audio")
+            # If enabled, play a wave file with a short sound to audibly
+            # indicate speech recognition failed
+            sound = CONFIGURATION["listener"].get('error_sound') or \
+                    'snd/listening_error.mp3'
+            if source:
+                source.mute()
+            try:
+                audio_file = resolve_resource_file(sound)
+                if audio_file.endswith(".wav"):
+                    play_wav(audio_file).wait()
+                elif audio_file.endswith(".mp3"):
+                    play_mp3(audio_file).wait()
+                elif audio_file.endswith(".ogg"):
+                    play_ogg(audio_file).wait()
+                else:
+                    play_audio(audio_file).wait()
+            except Exception as e:
+                LOG.warning(e)
+            if source:
+                source.unmute()
             return None
 
         dialog_name = 'not connected to the internet'
