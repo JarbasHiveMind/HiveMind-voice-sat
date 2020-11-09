@@ -181,25 +181,6 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
     # Padding of silence when feeding to pocketsphinx
     SILENCE_SEC = 0.01
 
-    # The minimum seconds of noise before a
-    # phrase can be considered complete
-    MIN_LOUD_SEC_PER_PHRASE = 0.5
-
-    # The minimum seconds of silence required at the end
-    # before a phrase will be considered complete
-    MIN_SILENCE_AT_END = 0.25
-
-    # The maximum seconds a phrase can be recorded,
-    # provided there is noise the entire time
-    RECORDING_TIMEOUT = 10.0
-
-    # The maximum time it will continue to record silence
-    # when not enough noise has been detected
-    RECORDING_TIMEOUT_WITH_SILENCE = 3.0
-
-    # Time between pocketsphinx checks for the wake word
-    SEC_BETWEEN_WW_CHECKS = 0.2
-
     def __init__(self, hot_word_engines):
 
         self.config = CONFIGURATION
@@ -211,6 +192,15 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.audio = pyaudio.PyAudio()
         self.multiplier = listener_config.get('multiplier')
         self.energy_ratio = listener_config.get('energy_ratio')
+        self.sec_between_ww_checks = \
+            listener_config.get("sec_between_ww_checks", 0.2)
+        self.recording_timeout_with_silence = \
+            listener_config.get("recording_timeout_with_silence", 3.0)
+        self.recording_timeout = listener_config.get("recording_timeout", 10.0)
+        self.min_loud_sec = listener_config.get("min_loud_sec", 0.5)
+        self.min_silence_at_end = \
+            listener_config.get("min_silence_at_end", 0.25)
+
         # check the config for the flag to save wake words.
         data_path = os.path.expanduser(self.config["data_dir"])
         self.save_wake_words = listener_config.get('record_wake_words', False)
@@ -297,14 +287,14 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             return level
 
         # Smallest number of loud chunks required to return
-        min_loud_chunks = int(self.MIN_LOUD_SEC_PER_PHRASE / sec_per_buffer)
+        min_loud_chunks = int(self.min_loud_sec / sec_per_buffer)
 
         # Maximum number of chunks to record before timing out
-        max_chunks = int(self.RECORDING_TIMEOUT / sec_per_buffer)
+        max_chunks = int(self.recording_timeout / sec_per_buffer)
         num_chunks = 0
 
         # Will return if exceeded this even if there's not enough loud chunks
-        max_chunks_of_silence = int(self.RECORDING_TIMEOUT_WITH_SILENCE /
+        max_chunks_of_silence = int(self.recording_timeout_with_silence /
                                     sec_per_buffer)
 
         # bytearray to store audio in
@@ -340,7 +330,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             quiet_enough = noise <= min_noise
             if quiet_enough:
                 silence_duration += sec_per_buffer
-                if silence_duration < self.MIN_SILENCE_AT_END:
+                if silence_duration < self.min_silence_at_end:
                     quiet_enough = False  # gotta be silent for min of 1/4 sec
             else:
                 silence_duration = 0
@@ -446,7 +436,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         # bytearray to store audio in
         byte_data = silence
 
-        buffers_per_check = self.SEC_BETWEEN_WW_CHECKS / sec_per_buffer
+        buffers_per_check = self.sec_between_ww_checks / sec_per_buffer
         buffers_since_check = 0.0
 
         # Max bytes for byte_data before audio is removed from the front

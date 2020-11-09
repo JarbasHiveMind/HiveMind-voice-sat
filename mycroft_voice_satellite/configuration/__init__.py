@@ -25,17 +25,41 @@ DEFAULT_CONFIGURATION = {
                              'phonemes': 'W EY K . AH P',
                              'threshold': 1e-20}},
     'lang': 'en-us',
-    'listener': {'channels': 1,
-                 'energy_ratio': 1.5,
-                 'multiplier': 1.0,
-                 'phoneme_duration': 120,
-                 'record_utterances': False,
-                 'record_wake_words': False,
-                 'sample_rate': 16000,
-                 'stand_up_word': 'wake up',
-                 'signal_folder': join(gettempdir(), "hivemind", "ipc"),
-                 'listen_sound': 'snd/start_listening.wav',
-                 'error_sound': 'snd/listening_error.mp3'},
+    'listener': {
+        # should recordings be saved? {data_dir}/recordings
+        'record_utterances': False,
+        'record_wake_words': False,
+        # input stream config
+        'channels': 1,
+        'sample_rate': 16000,
+        # noise detection
+        'energy_ratio': 1.5,
+        'multiplier': 1.0,
+        # The minimum seconds of noise before a
+        # phrase can be considered complete
+        "min_loud_sec": 0.7,
+        # The minimum seconds of silence required at the end
+        # before a phrase will be considered complete
+        "min_silence_at_end": 0.3,
+        # The maximum seconds a phrase can be recorded,
+        # provided there is noise the entire time
+        "recording_timeout": 10,
+        # The maximum time it will continue to record silence
+        # when not enough noise has been detected
+        "recording_timeout_with_silence": 3,
+        # Time between checks for wakewords
+        "sec_between_ww_checks": 0.2,
+        # checks for {signal_folder}/signal/startListening
+        'signal_folder': join(gettempdir(), "hivemind", "ipc"),
+        # can be set to None or full file path
+        'listen_sound': 'snd/start_listening.wav',
+        'error_sound': 'snd/listening_error.mp3',
+        # hotword to wake up from sleep mode
+        'stand_up_word': 'wake up',
+        # average duration per phoneme in milliseconds
+        # used to estimate wakeword detection window
+        'phoneme_duration': 120
+    },
     'stt': {'deepspeech_server': {'uri': 'http://localhost:8080/stt'},
             'deepspeech_stream_server': {
                 'stream_uri': 'http://localhost:8080/stt?format=16K_PCM16'},
