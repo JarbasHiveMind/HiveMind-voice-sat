@@ -615,13 +615,6 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         #        bytes_per_sec = source.SAMPLE_RATE * source.SAMPLE_WIDTH
         sec_per_buffer = float(source.CHUNK) / source.SAMPLE_RATE
 
-        # Every time a new 'listen()' request begins, reset the threshold
-        # used for silence detection.  This is as good of a reset point as
-        # any, as we expect the user and Mycroft to not be talking.
-        # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
-        #       speech is detected, but there is no code to actually do that.
-        self.adjust_for_ambient_noise(source, 1.0)
-
         LOG.debug("Waiting for wake word...")
         self._wait_until_wake_word(source, sec_per_buffer, bus)
         self._listen_triggered = False
@@ -634,6 +627,15 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
+
+        # Every time a 'listen' request ends, reset the threshold used for
+        # silence detection.
+        # This is as good of a reset point as any, as we expect the user to
+        # have stopped talking and Mycroft to not be talking yet
+        # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
+        #       speech is detected, but there is no code to actually do that.
+
+        self.adjust_for_ambient_noise(source, 1.0)
 
         LOG.debug("Thinking...")
         return audio_data
