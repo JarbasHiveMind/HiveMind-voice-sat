@@ -272,24 +272,24 @@ class AudioConsumer(Thread):
             LOG.error("Speech Recognition could not understand audio")
             # If enabled, play a wave file with a short sound to audibly
             # indicate speech recognition failed
-            sound = CONFIGURATION["listener"].get('error_sound') or \
-                    'snd/listening_error.mp3'
-            if source:
-                source.mute()
-            try:
-                audio_file = resolve_resource_file(sound)
-                if audio_file.endswith(".wav"):
-                    play_wav(audio_file).wait()
-                elif audio_file.endswith(".mp3"):
-                    play_mp3(audio_file).wait()
-                elif audio_file.endswith(".ogg"):
-                    play_ogg(audio_file).wait()
-                else:
-                    play_audio(audio_file).wait()
-            except Exception as e:
-                LOG.warning(e)
-            if source:
-                source.unmute()
+            sound = CONFIGURATION["listener"].get('error_sound')
+            audio_file = resolve_resource_file(sound)
+            if audio_file:
+                if source:
+                    source.mute()
+                try:
+                    if audio_file.endswith(".wav"):
+                        play_wav(audio_file).wait()
+                    elif audio_file.endswith(".mp3"):
+                        play_mp3(audio_file).wait()
+                    elif audio_file.endswith(".ogg"):
+                        play_ogg(audio_file).wait()
+                    else:
+                        play_audio(audio_file).wait()
+                except Exception as e:
+                    LOG.warning(e)
+                if source:
+                    source.unmute()
             return None
 
         dialog_name = 'not connected to the internet'

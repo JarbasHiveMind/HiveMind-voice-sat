@@ -384,22 +384,23 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             LOG.info("Listen signal detected")
             # If enabled, play a wave file with a short sound to audibly
             # indicate listen signal was detected.
-            sound = self.config["listener"].get('listen_sound') or \
-                    "snd/start_listening.wav"
-            try:
-                audio_file = resolve_resource_file(sound)
-                source.mute()
-                if audio_file.endswith(".wav"):
-                    play_wav(audio_file).wait()
-                elif audio_file.endswith(".mp3"):
-                    play_mp3(audio_file).wait()
-                elif audio_file.endswith(".ogg"):
-                    play_ogg(audio_file).wait()
-                else:
-                    play_audio(audio_file).wait()
-                source.unmute()
-            except Exception as e:
-                LOG.warning(e)
+            sound = self.config["listener"].get('listen_sound')
+            audio_file = resolve_resource_file(sound)
+            if audio_file:
+                try:
+
+                    source.mute()
+                    if audio_file.endswith(".wav"):
+                        play_wav(audio_file).wait()
+                    elif audio_file.endswith(".mp3"):
+                        play_mp3(audio_file).wait()
+                    elif audio_file.endswith(".ogg"):
+                        play_ogg(audio_file).wait()
+                    else:
+                        play_audio(audio_file).wait()
+                    source.unmute()
+                except Exception as e:
+                    LOG.warning(e)
 
         return signaled
 
