@@ -636,7 +636,6 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         bus.emit("recognizer_loop:record_end")
 
         LOG.debug("Thinking...")
-
         return audio_data
 
     def _adjust_threshold(self, energy, seconds_per_buffer):

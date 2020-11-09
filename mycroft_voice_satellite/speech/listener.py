@@ -206,10 +206,13 @@ class AudioConsumer(Thread):
 
     # TODO: Localization
     def process(self, audio, source=None):
+        if source:
+            LOG.debug("Muting microphone during STT")
+            source.mute()
         if self._audio_length(audio) < self.MIN_AUDIO_SIZE:
             LOG.warning("Audio too short to be processed")
         else:
-            transcription = self.transcribe(audio, source)
+            transcription = self.transcribe(audio)
             if transcription:
                 # STT succeeded, send the transcribed speech on for processing
                 payload = {
@@ -217,6 +220,9 @@ class AudioConsumer(Thread):
                     'lang': self.stt.lang
                 }
                 self.emitter.emit("recognizer_loop:utterance", payload)
+        if source:
+            LOG.debug("Unmuting microphone")
+            source.unmute()
 
     def _compile_metadata(self, utterance):
         timestamp = str(int(1000 * get_time()))
@@ -231,7 +237,7 @@ class AudioConsumer(Thread):
             'time': timestamp
         }
 
-    def transcribe(self, audio, source=None):
+    def transcribe(self, audio):
         def send_unknown_intent():
             """ Send message that nothing was transcribed. """
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
@@ -275,8 +281,6 @@ class AudioConsumer(Thread):
             sound = CONFIGURATION["listener"].get('error_sound')
             audio_file = resolve_resource_file(sound)
             if audio_file:
-                if source:
-                    source.mute()
                 try:
                     if audio_file.endswith(".wav"):
                         play_wav(audio_file).wait()
@@ -288,18 +292,10 @@ class AudioConsumer(Thread):
                         play_audio(audio_file).wait()
                 except Exception as e:
                     LOG.warning(e)
-                if source:
-                    source.unmute()
             return None
 
         dialog_name = 'not connected to the internet'
         self.emitter.emit('speak', {'utterance': dialog_name})
-
-    def __speak(self, utterance):
-        payload = {
-            'utterance': utterance
-        }
-        self.emitter.emit("speak", payload)
 
 
 class RecognizerLoopState:
