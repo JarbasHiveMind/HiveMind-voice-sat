@@ -242,40 +242,7 @@ class AudioConsumer(Thread):
             """ Send message that nothing was transcribed. """
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
 
-        try:
-            # Invoke the STT engine on the audio clip
-            text = self.stt.execute(audio)
-            if text is not None:
-                text = text.lower().strip()
-                LOG.debug("STT: " + text)
-            else:
-                send_unknown_intent()
-                LOG.info('no words were transcribed')
-            if self.save_utterances:
-                mtd = self._compile_metadata(text)
-
-                filename = os.path.join(self.saved_utterances_dir, mtd["name"])
-                with open(filename, 'wb') as f:
-                    f.write(audio.get_wav_data())
-
-                filename = os.path.join(self.saved_utterances_dir,
-                                        mtd["name"].replace(".wav", ".json"))
-                with open(filename, 'w') as f:
-                    json.dump(mtd, f, indent=4)
-
-            return text
-        except sr.RequestError as e:
-            LOG.error("Could not request Speech Recognition {0}".format(e))
-        except ConnectionError as e:
-            LOG.error("Connection Error: {0}".format(e))
-
-            self.emitter.emit("recognizer_loop:no_internet")
-        except RequestException as e:
-            LOG.error(e.__class__.__name__ + ': ' + str(e))
-        except Exception as e:
-            send_unknown_intent()
-            LOG.error(e)
-            LOG.error("Speech Recognition could not understand audio")
+        def play_error():
             # If enabled, play a wave file with a short sound to audibly
             # indicate speech recognition failed
             sound = CONFIGURATION["listener"].get('error_sound')
@@ -292,10 +259,48 @@ class AudioConsumer(Thread):
                         play_audio(audio_file).wait()
                 except Exception as e:
                     LOG.warning(e)
-            return None
 
-        dialog_name = 'not connected to the internet'
-        self.emitter.emit('speak', {'utterance': dialog_name})
+        def save_utt():
+            if self.save_utterances:
+                LOG.debug("saving utterance")
+                mtd = self._compile_metadata(text)
+
+                filename = os.path.join(self.saved_utterances_dir, mtd["name"])
+                with open(filename, 'wb') as f:
+                    f.write(audio.get_wav_data())
+
+                filename = os.path.join(self.saved_utterances_dir,
+                                        mtd["name"].replace(".wav", ".json"))
+                with open(filename, 'w') as f:
+                    json.dump(mtd, f, indent=4)
+
+        try:
+            # Invoke the STT engine on the audio clip
+            text = self.stt.execute(audio)
+            if text is not None:
+                text = text.lower().strip()
+                LOG.debug("STT: " + text)
+            else:
+                send_unknown_intent()
+                LOG.info('no words were transcribed')
+            save_utt()
+            return text
+        except sr.RequestError as e:
+            LOG.error("Could not request Speech Recognition {0}".format(e))
+        except ConnectionError as e:
+            LOG.error("Connection Error: {0}".format(e))
+            self.emitter.emit("recognizer_loop:no_internet")
+        except RequestException as e:
+            LOG.error(e.__class__.__name__ + ': ' + str(e))
+        except sr.UnknownValueError:
+            LOG.error("Speech Recognition could not understand audio")
+        except Exception as e:
+            send_unknown_intent()
+            LOG.exception(e)
+            LOG.error("Speech Recognition Error")
+        play_error()
+        save_utt()
+        return None
 
 
 class RecognizerLoopState:
