@@ -237,42 +237,43 @@ class AudioConsumer(Thread):
             'time': timestamp
         }
 
+    @staticmethod
+    def play_error():
+        # If enabled, play a wave file with a short sound to audibly
+        # indicate speech recognition failed
+        sound = CONFIGURATION["listener"].get('error_sound')
+        audio_file = resolve_resource_file(sound)
+        if audio_file:
+            try:
+                if audio_file.endswith(".wav"):
+                    play_wav(audio_file).wait()
+                elif audio_file.endswith(".mp3"):
+                    play_mp3(audio_file).wait()
+                elif audio_file.endswith(".ogg"):
+                    play_ogg(audio_file).wait()
+                else:
+                    play_audio(audio_file).wait()
+            except Exception as e:
+                LOG.warning(e)
+
+    def save_utt(self, text, audio):
+        if self.save_utterances:
+            LOG.debug("saving utterance")
+            mtd = self._compile_metadata(text)
+
+            filename = os.path.join(self.saved_utterances_dir, mtd["name"])
+            with open(filename, 'wb') as f:
+                f.write(audio.get_wav_data())
+
+            filename = os.path.join(self.saved_utterances_dir,
+                                    mtd["name"].replace(".wav", ".json"))
+            with open(filename, 'w') as f:
+                json.dump(mtd, f, indent=4)
+
     def transcribe(self, audio):
         def send_unknown_intent():
             """ Send message that nothing was transcribed. """
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
-
-        def play_error():
-            # If enabled, play a wave file with a short sound to audibly
-            # indicate speech recognition failed
-            sound = CONFIGURATION["listener"].get('error_sound')
-            audio_file = resolve_resource_file(sound)
-            if audio_file:
-                try:
-                    if audio_file.endswith(".wav"):
-                        play_wav(audio_file).wait()
-                    elif audio_file.endswith(".mp3"):
-                        play_mp3(audio_file).wait()
-                    elif audio_file.endswith(".ogg"):
-                        play_ogg(audio_file).wait()
-                    else:
-                        play_audio(audio_file).wait()
-                except Exception as e:
-                    LOG.warning(e)
-
-        def save_utt():
-            if self.save_utterances:
-                LOG.debug("saving utterance")
-                mtd = self._compile_metadata(text)
-
-                filename = os.path.join(self.saved_utterances_dir, mtd["name"])
-                with open(filename, 'wb') as f:
-                    f.write(audio.get_wav_data())
-
-                filename = os.path.join(self.saved_utterances_dir,
-                                        mtd["name"].replace(".wav", ".json"))
-                with open(filename, 'w') as f:
-                    json.dump(mtd, f, indent=4)
 
         try:
             # Invoke the STT engine on the audio clip
@@ -283,7 +284,7 @@ class AudioConsumer(Thread):
             else:
                 send_unknown_intent()
                 LOG.info('no words were transcribed')
-            save_utt()
+            self.save_utt(text, audio)
             return text
         except sr.RequestError as e:
             LOG.error("Could not request Speech Recognition {0}".format(e))
@@ -298,8 +299,8 @@ class AudioConsumer(Thread):
             send_unknown_intent()
             LOG.exception(e)
             LOG.error("Speech Recognition Error")
-        play_error()
-        save_utt()
+        self.play_error()
+        self.save_utt("", audio)
         return None
 
 
