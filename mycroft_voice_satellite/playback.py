@@ -1,4 +1,4 @@
-from jarbas_utils.sound import play_audio as _play_audio, \
+from ovos_utils.sound import play_audio as _play_audio, \
     play_wav as _play_wav, play_mp3 as _play_mp3, play_ogg as _play_ogg
 from mycroft_voice_satellite.configuration import CONFIGURATION
 from os.path import join, dirname, expanduser, normpath, abspath, isfile

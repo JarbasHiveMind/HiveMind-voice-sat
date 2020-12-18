@@ -33,8 +33,8 @@ from mycroft_voice_satellite.configuration import CONFIGURATION
 from mycroft_voice_satellite.speech.signal import check_for_signal
 from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
     play_wav, resolve_resource_file
-from jarbas_utils.log import LOG
-from jarbas_utils.lang.phonemes import get_phonemes
+from ovos_utils.log import LOG
+from ovos_utils.lang.phonemes import get_phonemes
 
 
 class MutableStream:
@@ -200,6 +200,10 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         self.min_loud_sec = listener_config.get("min_loud_sec", 0.5)
         self.min_silence_at_end = \
             listener_config.get("min_silence_at_end", 0.25)
+        self.ambient_noise_adjustment_time = listener_config.get(
+            "ambient_noise_adjustment_time", 0.5)
+        self.auto_ambient_noise_adjustment = listener_config.get(
+            "auto_ambient_noise_adjustment", False)
 
         # check the config for the flag to save wake words.
         data_path = os.path.expanduser(self.config["data_dir"])
@@ -213,8 +217,9 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         # Signal statuses
         self._stop_signaled = False
         self._listen_triggered = False
-        self.hotword_engines = hot_word_engines or {}
+        self._should_adjust_noise = False
 
+        self.hotword_engines = hot_word_engines or {}
         # The maximum audio in seconds to keep for transcribing a phrase
         # The wake word must fit in this time
         num_phonemes = 10
@@ -420,6 +425,17 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         """Externally trigger listening."""
         LOG.debug('Listen triggered from external source.')
         self._listen_triggered = True
+
+    def trigger_ambient_noise_adjustment(self):
+        LOG.debug("Ambient noise adjustment requested from external source")
+        self._should_adjust_noise = True
+
+    def _adjust_ambient_noise(self, source, time=None):
+        time = time or self.ambient_noise_adjustment_time
+        LOG.info("Adjusting for ambient noise, be silent!!!")
+        self.adjust_for_ambient_noise(source, time)
+        LOG.info("Ambient noise profile has been created")
+        self._should_adjust_noise = False
 
     def _wait_until_wake_word(self, source, sec_per_buffer, bus):
         """Listen continuously on source until a wake word is spoken
@@ -627,16 +643,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         frame_data = self._record_phrase(source, sec_per_buffer, stream)
         audio_data = self._create_audio_data(frame_data, source)
         bus.emit("recognizer_loop:record_end")
-
-        # Every time a 'listen' request ends, reset the threshold used for
-        # silence detection.
-        # This is as good of a reset point as any, as we expect the user to
-        # have stopped talking and Mycroft to not be talking yet
-        # NOTE: adjust_for_ambient_noise() doc claims it will stop early if
-        #       speech is detected, but there is no code to actually do that.
-
-        self.adjust_for_ambient_noise(source, 1.0)
-
+        if self.auto_ambient_noise_adjustment:
+            self._adjust_ambient_noise(source)
         LOG.debug("Thinking...")
         return audio_data
 

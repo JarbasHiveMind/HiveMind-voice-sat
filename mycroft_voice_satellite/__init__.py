@@ -3,9 +3,9 @@ from mycroft_voice_satellite.configuration import CONFIGURATION
 from jarbas_hive_mind.slave.terminal import HiveMindTerminalProtocol, \
     HiveMindTerminal
 from jarbas_hive_mind import HiveMindConnection
-from jarbas_utils.log import LOG
-from jarbas_utils import create_daemon
-from jarbas_utils.messagebus import Message
+from ovos_utils.log import LOG
+from ovos_utils import create_daemon
+from ovos_utils.messagebus import Message
 from text2speech import TTSFactory
 from tempfile import gettempdir
 from os.path import join, isdir
@@ -13,8 +13,6 @@ from os import makedirs
 from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
     play_wav, resolve_resource_file
 
-
-platform = "JarbasVoiceTerminalV2.1"
 
 
 class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
@@ -34,6 +32,7 @@ class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
 
 class JarbasVoiceTerminal(HiveMindTerminal):
     protocol = JarbasVoiceTerminalProtocol
+    platform = "JarbasVoiceTerminalV2.1"
 
     def __init__(self, config=CONFIGURATION, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -79,13 +78,16 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         LOG.info("Wakeword Detected: " + event['utterance'])
 
     def handle_utterance(self, event):
-        context = {'platform': platform, "source": self.peer,
+        context = {'platform': self.platform, "source": self.peer,
                    'destination': "hive_mind"}
         msg = {"data": {"utterances": event['utterances'], "lang": "en-us"},
                "type": "recognizer_loop:utterance",
                "context": context}
 
         self.send_to_hivemind_bus(msg)
+
+    def handle_ambient_noise(self):
+        self.recognizer.trigger_ambient_noise_adjustment()
 
     def handle_unknown(self):
         LOG.info("mycroft.speech.recognition.unknown")
@@ -138,6 +140,8 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         self.loop.on('recognizer_loop:hotword', self.handle_hotword)
         self.loop.on('recognizer_loop:record_end',
                      self.handle_record_end)
+        self.loop.on('recognizer_loop:ambient_noise',
+                     self.handle_ambient_noise)
         self.loop.run()
 
     def stop_listening(self):
@@ -153,6 +157,8 @@ class JarbasVoiceTerminal(HiveMindTerminal):
                                   self.handle_hotword)
         self.loop.remove_listener('recognizer_loop:record_end',
                                   self.handle_record_end)
+        self.loop.remove_listener('recognizer_loop:ambient_noise',
+                                  self.handle_ambient_noise)
 
     # parsed protocol messages
     def handle_incoming_mycroft(self, message):
@@ -168,14 +174,12 @@ class JarbasVoiceTerminal(HiveMindTerminal):
 def connect_to_hivemind(config=CONFIGURATION, host="wss://127.0.0.1",
                         port=5678, name="JarbasVoiceTerminal",
                         access_key="RESISTENCEisFUTILE",
-                        crypto_key="resistanceISfutile",
-                        useragent=platform):
+                        crypto_key="resistanceISfutile"):
 
     con = HiveMindConnection(host, port)
 
     terminal = JarbasVoiceTerminal(config=config,
                                    crypto_key=crypto_key,
-                                   headers=con.get_headers(name, access_key),
-                                   useragent=useragent)
+                                   headers=con.get_headers(name, access_key))
 
     con.connect(terminal)

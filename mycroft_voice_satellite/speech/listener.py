@@ -29,7 +29,7 @@ from mycroft_voice_satellite.speech.mic import MutableMicrophone, \
     ResponsiveRecognizer
 from speech2text import STTFactory
 from queue import Queue, Empty
-from jarbas_utils.log import LOG
+from ovos_utils.log import LOG
 from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
     play_wav, resolve_resource_file
 
@@ -96,7 +96,9 @@ class AudioProducer(Thread):
     def run(self):
         restart_attempts = 0
         with self.mic as source:
+            LOG.info("Adjusting for ambient noise, be silent!!!")
             self.recognizer.adjust_for_ambient_noise(source)
+            LOG.info("Ambient noise profile has been created")
             while self.state.running:
                 try:
                     audio = self.recognizer.listen(source, self.emitter,
@@ -319,11 +321,12 @@ class RecognizerLoop(EventEmitter):
     def __init__(self, config=None):
         super(RecognizerLoop, self).__init__()
         self.mute_calls = 0
+        self.config = config or CONFIGURATION
         self._load_config(config)
 
-    def _load_config(self, config):
+    def _load_config(self, config=None):
         """Load configuration parameters from configuration."""
-        config = config or CONFIGURATION
+        config = config or self.config
         self.config_core = config
         self.lang = config.get('lang')
         self.config = config.get('listener')
