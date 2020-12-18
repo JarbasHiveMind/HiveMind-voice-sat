@@ -26,7 +26,7 @@ DEFAULT_CONFIGURATION = {
                              'threshold': 1e-20}},
     'lang': 'en-us',
     'listener': {
-        # should recordings be saved? {data_dir}/recordings
+        # should recordings be saved? {data_dir}/recordings/utterances
         'record_utterances': False,
         'record_wake_words': False,
         # input stream config
@@ -49,6 +49,11 @@ DEFAULT_CONFIGURATION = {
         "recording_timeout_with_silence": 3,
         # Time between checks for wakewords
         "sec_between_ww_checks": 0.2,
+        # Auto adjust for ambient noise (after recording, before STT
+        # processing, introduces latency for time defined bellow)
+        "auto_ambient_noise_adjustment": True,
+        # Time to listen and adjust for ambient noise in seconds
+        "ambient_noise_adjustment_time": 0.5,
         # checks for {signal_folder}/signal/startListening
         'signal_folder': join(gettempdir(), "hivemind", "ipc"),
         # can be set to None or full file path
@@ -60,6 +65,15 @@ DEFAULT_CONFIGURATION = {
         # used to estimate wakeword detection window
         'phoneme_duration': 120
     },
+
+    'playback': {
+        'play_wav_cmd': "aplay %1",
+        'play_mp3_cmd': "mpg123 %1",
+        'play_ogg_cmd': "ogg123 -q %1",
+        'play_fallback_cmd': "play %1"
+    },
+
+    'log_blacklist': [],
     'stt': {'deepspeech_server': {'uri': 'http://localhost:8080/stt'},
             'deepspeech_stream_server': {
                 'stream_uri': 'http://localhost:8080/stt?format=16K_PCM16'},
@@ -72,15 +86,7 @@ DEFAULT_CONFIGURATION = {
             "deepspeech_streaming": {"model": "path/to/model.pbmm",
                                      "scorer": "path/to/model.scorer"},
             'module': 'google'},
-    'tts': {'module': 'responsive_voice'},
-    'playback': {
-        'play_wav_cmd': "aplay %1",
-        'play_mp3_cmd': "mpg123 %1",
-        'play_ogg_cmd': "ogg123 -q %1",
-        'play_fallback_cmd': "play %1"
-    },
-    'log_blacklist': []
-}
+    'tts': {'module': 'responsive_voice'}}
 
 
 def _merge_defaults(base, default=None):

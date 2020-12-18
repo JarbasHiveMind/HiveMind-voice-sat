@@ -1,7 +1,7 @@
 from mycroft_voice_satellite import connect_to_hivemind, JarbasVoiceTerminal
 from jarbas_hive_mind import HiveMindConnection
 from jarbas_hive_mind.discovery import LocalDiscovery
-from jarbas_utils.log import LOG
+from ovos_utils.log import LOG
 from time import sleep
 
 
