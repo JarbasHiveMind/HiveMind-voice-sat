@@ -2,6 +2,8 @@
 
 Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/JarbasSkills/skill-hivemind)
 
+![](./voice_terminal.png)
+
 
 * [Setup](#setup)
 * [Usage](#usage)
