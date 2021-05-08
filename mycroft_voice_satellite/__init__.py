@@ -166,6 +166,8 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         if message.msg_type == "speak":
             utterance = message.data["utterance"]
             self.speak(utterance)
+            if message.data["expect_response"]:
+                self.loop.responsive_recognizer.trigger_listen()
         elif message.msg_type == "hive.complete_intent_failure":
             LOG.error("complete intent failure")
             self.speak('I don\'t know how to answer that')
