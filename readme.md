@@ -17,8 +17,15 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 
 ![](./voice_sat.png)
 
-
 ## Install
+
+Install dependencies (if needed)
+
+```bash
+sudo apt-get install -y swig libpulse-dev libasound2-dev
+```
+
+Install with pip
 
 ```bash
 $ pip install HiveMind-voice-sat
