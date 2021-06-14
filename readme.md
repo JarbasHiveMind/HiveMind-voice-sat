@@ -22,7 +22,7 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 Install dependencies (if needed)
 
 ```bash
-sudo apt-get install -y swig libpulse-dev libasound2-dev
+sudo apt-get install -y python-pyaudio swig libpulse-dev libasound2-dev
 ```
 
 Install with pip
