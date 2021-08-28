@@ -2,25 +2,35 @@ from ovos_utils.sound import play_audio as _play_audio, \
     play_wav as _play_wav, play_mp3 as _play_mp3, play_ogg as _play_ogg
 from mycroft_voice_satellite.configuration import CONFIGURATION
 from os.path import join, dirname, expanduser, normpath, abspath, isfile
+from sys import executable
 
+def parse_cmd_python(cmd):
+    cmd = cmd.split(" ")
+    if cmd[0] == "python":
+        cmd[0] = executable
+    return " ".join(cmd)
 
 def play_audio(uri):
     cmd = CONFIGURATION["playback"]["play_fallback_cmd"]
+    cmd = parse_cmd_python(cmd)
     return _play_audio(uri, cmd)
 
 
 def play_wav(uri):
     cmd = CONFIGURATION["playback"]["play_wav_cmd"]
+    cmd = parse_cmd_python(cmd)
     return _play_wav(uri, cmd)
 
 
 def play_mp3(uri):
     cmd = CONFIGURATION["playback"]["play_mp3_cmd"]
+    cmd = parse_cmd_python(cmd)
     return _play_mp3(uri, cmd)
 
 
 def play_ogg(uri):
     cmd = CONFIGURATION["playback"]["play_ogg_cmd"]
+    cmd = parse_cmd_python(cmd)
     return _play_ogg(uri, cmd)
 
 
@@ -72,4 +82,3 @@ def resolve_resource_file(res_name):
         return filename
 
     return None  # Resource cannot be resolved
-

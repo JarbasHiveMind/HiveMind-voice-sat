@@ -633,6 +633,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
 
         LOG.debug("Waiting for wake word...")
         self._wait_until_wake_word(source, sec_per_buffer, bus)
+        LOG.debug("Wake word detected")
         self._listen_triggered = False
         if self._stop_signaled:
             return

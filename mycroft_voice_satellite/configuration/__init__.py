@@ -1,4 +1,5 @@
 from json_database import JsonStorageXDG
+import os
 from os.path import exists, expanduser, join
 from tempfile import gettempdir
 
@@ -86,8 +87,11 @@ DEFAULT_CONFIGURATION = {
             "deepspeech_streaming": {"model": "path/to/model.pbmm",
                                      "scorer": "path/to/model.scorer"},
             'module': 'google'},
-    'tts': {'module': 'responsive_voice'}}
+    'tts': {'module': 'google'}}
 
+if os.name == "nt":
+    for key in DEFAULT_CONFIGURATION["playback"]:
+        DEFAULT_CONFIGURATION["playback"][key] = "python -m playsound %1"
 
 def _merge_defaults(base, default=None):
     """

@@ -85,6 +85,7 @@ class PocketsphinxHotWord(HotWordEngine):
         self.sample_rate = self.listener_config.get("sample_rate", 1600)
         dict_name = self.create_dict(self.key_phrase, self.phonemes)
         config = self.create_config(dict_name, Decoder.default_config())
+        print(dict_name)
         self.decoder = Decoder(config)
 
     def create_dict(self, key_phrase, phonemes):
@@ -106,7 +107,9 @@ class PocketsphinxHotWord(HotWordEngine):
         config.set_float('-kws_threshold', float(self.threshold))
         config.set_float('-samprate', self.sample_rate)
         config.set_int('-nfft', 2048)
-        config.set_string('-logfn', '/dev/null')
+        logfn = '/dev/null'
+        if os.name == 'nt': logfn = 'NUL'
+        config.set_string('-logfn', logfn)
         return config
 
     def transcribe(self, byte_data, metrics=None):

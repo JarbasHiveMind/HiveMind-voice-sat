@@ -30,7 +30,7 @@ def main():
     parser.add_argument("--access_key", help="access key",
                         default="RESISTENCEisFUTILE")
     parser.add_argument("--crypto_key", help="payload encryption key",
-                        default="resistanceISfutile")
+                        default=None)
     parser.add_argument("--name", help="human readable device name",
                         default="JarbasVoiceTerminal")
     parser.add_argument("--host", help="HiveMind host")
@@ -40,7 +40,7 @@ def main():
 
     if args.host:
         # Direct Connection
-        connect_to_hivemind(host=args.host, port=args.port,
+        connect_to_hivemind(host=args.host, port=int(args.port),
                             name=args.name, access_key=args.access_key,
                             crypto_key=args.crypto_key)
 

@@ -1,1 +1,1 @@
-include mycroft_voice_satellite/res/snd/start_listening.wav
+recursive-include mycroft_voice_satellite *

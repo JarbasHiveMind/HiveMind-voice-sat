@@ -18,11 +18,25 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 ![](./voice_sat.png)
 
 
-## Install
+## Setup
+
+### Server
+
+After installing and configuring Mycroft you must install the HiveMind skill
 
 ```bash
-$ pip install HiveMind-voice-sat
+$ source .venv/bin/activate
+$ msm install https://github.com/JarbasHiveMind/skill-hivemind
 ```
+
+### Client
+
+```bash
+$ pip install git+https://github.com/Joanguitar/HiveMind-voice-sat
+```
+
+Windows users will require several additional steps that I summarized in [this](https://github.com/Joanguitar/HiveMind-voice-sat/blob/master/useful_scripts/client/install.bat) batch file.
+
 ## Usage
 
 If host is not provided auto discovery will be used
@@ -43,25 +57,22 @@ optional arguments:
   --port PORT           HiveMind port number
 ```
 
-Default values are
-
-```
---access_key - "RESISTENCEisFUTILE"
---crypto_key - "resistanceISfutile"
---name - "JarbasVoiceTerminal"
---port" - 5678
-
-```
-
 ## Configuration
 
+### Server
+
 You can set the configuration at
-    
+[https://account.mycroft.ai/skills]
+
+### Client
+
+You can set the configuration at
+
     ~/.cache/json_database/HivemindVoiceSatellite.json
-    
+
 Otherwise default configuration will be used, check bellow for defaults
 
-### configure speech to text
+#### configure speech to text
 ```json
 {
     "lang": "en-us",
@@ -71,7 +82,7 @@ Otherwise default configuration will be used, check bellow for defaults
 }
 ```
 
-### configure text to speech
+#### configure text to speech
 ```json
 {
     "lang": "en-us",
@@ -140,7 +151,7 @@ add any number of hot words to config
     }
 }
 ```
-data_dir is where recordings are saved, 
+data_dir is where recordings are saved,
 
     {data_dir}/utterances
     {data_dir}/hotwords
@@ -185,3 +196,5 @@ you shouldn"t need to change this, a common change is replacing ```aplay``` with
 }
 
 ```
+
+In Windows systems all these default values are replaced with ```"python -m playsound %1#``` where ```python``` takes the value of the executable running the code.
