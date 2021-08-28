@@ -1,0 +1,6 @@
+git+https://github.com/OpenVoiceOS/ovos_utils
+git+https://github.com/OpenVoiceOS/OVOS-plugin-manager
+git+https://github.com/OpenVoiceOS/ovos-ww-plugin-pocketsphinx
+git+https://github.com/OpenVoiceOS/ovos-tts-plugin-google-tx
+git+https://github.com/OpenVoiceOS/ovos-tts-plugin-responsivevoice
+git+https://github.com/OpenVoiceOS/ovos-tts-plugin-pico

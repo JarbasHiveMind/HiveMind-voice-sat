@@ -101,10 +101,10 @@ class AudioProducer(Thread):
             LOG.info("Ambient noise profile has been created")
             while self.state.running:
                 try:
-                    audio = self.recognizer.listen(source, self.emitter,
+                    audio, language = self.recognizer.listen(source, self.emitter,
                                                    self.stream_handler)
                     if audio is not None:
-                        self.queue.put((AUDIO_DATA, audio, source))
+                        self.queue.put((AUDIO_DATA, audio, source, language))
                     else:
                         LOG.warning("Audio contains no data.")
                 except IOError as e:
@@ -179,14 +179,14 @@ class AudioConsumer(Thread):
         if audio is None:
             return
 
-        tag, data, source = audio
+        tag, data, source, language = audio
 
         if tag == AUDIO_DATA:
             if data is not None:
                 if self.state.sleeping:
                     self.wake_up(data)
                 else:
-                    self.process(data, source)
+                    self.process(data, source, language)
         elif tag == STREAM_START:
             self.stt.stream_start()
         elif tag == STREAM_DATA:
@@ -207,19 +207,19 @@ class AudioConsumer(Thread):
                 audio.sample_rate * audio.sample_width)
 
     # TODO: Localization
-    def process(self, audio, source=None):
+    def process(self, audio, source=None, language=None):
         if source:
             LOG.debug("Muting microphone during STT")
             source.mute()
         if self._audio_length(audio) < self.MIN_AUDIO_SIZE:
             LOG.warning("Audio too short to be processed")
         else:
-            transcription = self.transcribe(audio)
+            transcription = self.transcribe(audio, language=language)
             if transcription:
                 # STT succeeded, send the transcribed speech on for processing
                 payload = {
                     'utterances': [transcription],
-                    'lang': self.stt.lang
+                    'lang': language or self.stt.lang
                 }
                 self.emitter.emit("recognizer_loop:utterance", payload)
         if source:
@@ -272,14 +272,14 @@ class AudioConsumer(Thread):
             with open(filename, 'w') as f:
                 json.dump(mtd, f, indent=4)
 
-    def transcribe(self, audio):
+    def transcribe(self, audio, language=None):
         def send_unknown_intent():
             """ Send message that nothing was transcribed. """
             self.emitter.emit('recognizer_loop:speech.recognition.unknown')
 
         try:
             # Invoke the STT engine on the audio clip
-            text = self.stt.execute(audio)
+            text = self.stt.execute(audio, language = language)
             if text is not None:
                 text = text.lower().strip()
                 LOG.debug("STT: " + text)
@@ -328,7 +328,7 @@ class RecognizerLoop(EventEmitter):
         """Load configuration parameters from configuration."""
         config = config or self.config
         self.config_core = config
-        self.lang = config.get('lang')
+        self.lang = config.get('lang', 'en-us')
         self.config = config.get('listener')
         rate = self.config.get('sample_rate')
 
@@ -360,15 +360,17 @@ class RecognizerLoop(EventEmitter):
             sound = data.get("sound")
             utterance = data.get("utterance")
             listen = data.get("listen", False)
+            lang = data.get("lang", self.lang)
             engine = OVOSWakeWordFactory.create_hotword(word,
                                                         loop=self,
                                                         config=hot_words,
-                                                        lang=self.lang)
+                                                        lang=lang)
 
             self.hotword_engines[word] = {"engine": engine,
                                           "sound": sound,
                                           "utterance": utterance,
-                                          "listen": listen}
+                                          "listen": listen,
+                                          "lang": lang}
 
     def create_wakeup_recognizer(self):
         LOG.info("creating stand up word engine")

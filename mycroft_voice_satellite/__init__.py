@@ -41,14 +41,15 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         LOG.debug("Using TTS engine: " + self.tts.__class__.__name__)
 
     # Voice Output
-    def speak(self, utterance):
-        LOG.info("SPEAK: " + utterance)
+    def speak(self, utterance, lang=None):
+        lang = lang or self.config.get('lang', 'en-us')
+        LOG.info("SPEAK " + lang + ": " + utterance)
         temppath = join(gettempdir(), self.tts.tts_name)
         if not isdir(temppath):
             makedirs(temppath)
         audio_file = join(temppath, str(hash(utterance))[1:] +
                           "." + self.tts.audio_ext)
-        self.tts.get_tts(utterance, audio_file)
+        self.tts.get_tts(utterance, audio_file, lang=lang)
         try:
             if audio_file.endswith(".wav"):
                 play_wav(audio_file).wait()
@@ -78,7 +79,8 @@ class JarbasVoiceTerminal(HiveMindTerminal):
     def handle_utterance(self, event):
         context = {'platform': self.platform, "source": self.peer,
                    'destination': "hive_mind"}
-        msg = {"data": {"utterances": event['utterances'], "lang": "en-us"},
+        LOG.debug(event)
+        msg = {"data": {"utterances": event['utterances'], "lang": event['lang']},
                "type": "recognizer_loop:utterance",
                "context": context}
 
@@ -163,9 +165,10 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         assert isinstance(message, Message)
         if message.msg_type == "speak":
             utterance = message.data["utterance"]
-            self.speak(utterance)
+            lang = message.data.get('lang', self.config.get('lang', 'en-us'))
+            self.speak(utterance, lang)
             if message.data["expect_response"]:
-                self.loop.responsive_recognizer.trigger_listen()
+                self.loop.responsive_recognizer.trigger_listen(lang=lang)
         elif message.msg_type == "hive.complete_intent_failure":
             LOG.error("complete intent failure")
             self.speak('I don\'t know how to answer that')

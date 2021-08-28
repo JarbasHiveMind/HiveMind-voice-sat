@@ -216,6 +216,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
 
         # Signal statuses
         self._stop_signaled = False
+        self._listen_lang = self.config.get('lang', 'en-us')
         self._listen_triggered = False
         self._should_adjust_noise = False
 
@@ -374,6 +375,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                 # begin recording
                 LOG.debug("Button Pressed, wakeword not needed")
                 signaled = True
+                self._listen_lang = self.config.get('lang', 'en-us')
 
         if signaled:
             LOG.info("Listen signal detected")
@@ -421,9 +423,10 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
             'model': str(model_hash)
         }
 
-    def trigger_listen(self):
+    def trigger_listen(self, lang=None):
         """Externally trigger listening."""
         LOG.debug('Listen triggered from external source.')
+        self._listen_lang = lang or self.config.get('lang', 'en-us')
         self._listen_triggered = True
 
     def trigger_ambient_noise_adjustment(self):
@@ -460,6 +463,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         test_size = self.sec_to_bytes(self.TEST_WW_SEC, source)
 
         said_wake_word = False
+        lang = None
 
         # Rolling buffer to track the audio energy (loudness) heard on
         # the source recently.  An average audio energy is maintained
@@ -525,6 +529,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                     sound = self.hotword_engines[hotword]["sound"]
                     utterance = self.hotword_engines[hotword]["utterance"]
                     listen = self.hotword_engines[hotword]["listen"]
+                    lang = self.hotword_engines[hotword]["lang"]
 
                     LOG.debug("Hot Word: " + hotword)
                     # If enabled, play a wave file with a short sound to audibly
@@ -592,6 +597,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                     # reset bytearray to store wake word audio in, else many
                     # serial detections
                     byte_data = silence
+        lang = lang or self._listen_lang
+        return lang
 
     def check_for_hotwords(self, audio_data, bus):
         # check hot word
@@ -632,7 +639,8 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         sec_per_buffer = float(source.CHUNK) / source.SAMPLE_RATE
 
         LOG.debug("Waiting for wake word...")
-        self._wait_until_wake_word(source, sec_per_buffer, bus)
+        lang = self._wait_until_wake_word(source, sec_per_buffer, bus)
+        LOG.debug("Wake word detected")
         self._listen_triggered = False
         if self._stop_signaled:
             return
@@ -646,7 +654,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         if self.auto_ambient_noise_adjustment:
             self._adjust_ambient_noise(source)
         LOG.debug("Thinking...")
-        return audio_data
+        return audio_data, lang
 
     def _adjust_threshold(self, energy, seconds_per_buffer):
         if self.dynamic_energy_threshold and energy > 0:

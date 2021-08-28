@@ -18,11 +18,32 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 ![](./voice_sat.png)
 
 
-## Install
+## Setup
+
+### Server
+
+After installing and configuring Mycroft you must install the HiveMind skill
 
 ```bash
-$ pip install HiveMind-voice-sat
+$ source .venv/bin/activate
+$ msm install https://github.com/JarbasHiveMind/skill-hivemind
 ```
+
+or the HiveMind core
+
+```bash
+$ source .venv/bin/activate
+$ pip install https://github.com/Joanguitar/HiveMind-core
+```
+
+### Client
+
+```bash
+$ pip install git+https://github.com/Joanguitar/HiveMind-voice-sat
+```
+
+Windows users will require several additional steps that I summarized in [this](https://github.com/Joanguitar/HiveMind-voice-sat/blob/master/useful_scripts/client/install.bat) batch file.
+
 ## Usage
 
 If host is not provided auto discovery will be used
@@ -43,25 +64,53 @@ optional arguments:
   --port PORT           HiveMind port number
 ```
 
-Default values are
-
-```
---access_key - "RESISTENCEisFUTILE"
---crypto_key - "resistanceISfutile"
---name - "JarbasVoiceTerminal"
---port" - 5678
-
-```
-
 ## Configuration
 
+### Server
+
 You can set the configuration at
-    
+
+[https://account.mycroft.ai/skills]
+
+or if you chose to install HiveMind-core you can use the following command to add a user to the database of allowed users in $Home/jarbasHiveMind/database/clients.db
+
+```bash
+$ HiveMind-server --help
+usage: HiveMind-server [-h] [--name NAME] [--access_key ACCESS_KEY]
+                       [--crypto_key CRYPTO_KEY] [--mail MAIL] [--port PORT]
+
+Start HiveMind as a server
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --name NAME           human readable name
+  --access_key ACCESS_KEY
+                        access key
+  --crypto_key CRYPTO_KEY
+                        payload encryption key
+  --mail MAIL           human readable mail
+  --port PORT           HiveMind port number
+```
+
+#### Picroft
+
+If you're running Hivemind on Picroft you will need to install some extra dependencies before installing HiveMind-core, these can be installed using:
+
+```bash
+$ sudo apt update
+$ sudo apt-get install -y libxml2 libxslt-dev
+$ sudo apt-get rustc
+```
+
+### Client
+
+You can set the configuration at
+
     ~/.cache/json_database/HivemindVoiceSatellite.json
-    
+
 Otherwise default configuration will be used, check bellow for defaults
 
-### configure speech to text
+#### configure speech to text
 ```json
 {
     "lang": "en-us",
@@ -71,7 +120,7 @@ Otherwise default configuration will be used, check bellow for defaults
 }
 ```
 
-### configure text to speech
+#### configure text to speech
 ```json
 {
     "lang": "en-us",
@@ -98,7 +147,15 @@ add any number of hot words to config
             "threshold": 1e-90,
             "lang": "en-us",
             "sound": "snd/start_listening.wav",
-            "listen": true
+            "listen": true,
+        },
+        "escucha paco": {
+            "module": "pocketsphinx",
+            "phonemes": "e s k u ch a . p a k o",
+            "threshold": 1e-30,
+            "lang": "es-es",
+            "sound": "snd/start_listening.wav",
+            "listen": true,
         },
         "thank you": {
             "module": "pocketsphinx",
@@ -114,7 +171,7 @@ add any number of hot words to config
             "module": "pocketsphinx",
             "phonemes": "W EY K . AH P",
             "threshold": 1e-20,
-            "lang": "en-us"
+            "lang": "en-us",
         }
     }
 }
@@ -140,7 +197,7 @@ add any number of hot words to config
     }
 }
 ```
-data_dir is where recordings are saved, 
+data_dir is where recordings are saved,
 
     {data_dir}/utterances
     {data_dir}/hotwords
@@ -185,3 +242,5 @@ you shouldn"t need to change this, a common change is replacing ```aplay``` with
 }
 
 ```
+
+In Windows systems all these default values are replaced with ```"python -m playsound %1#``` where ```python``` takes the value of the executable running the code.
