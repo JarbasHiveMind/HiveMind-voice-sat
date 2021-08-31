@@ -6,13 +6,12 @@ from jarbas_hive_mind import HiveMindConnection
 from ovos_utils.log import LOG
 from ovos_utils import create_daemon
 from ovos_utils.messagebus import Message
-from text2speech import TTSFactory
 from tempfile import gettempdir
 from os.path import join, isdir
 from os import makedirs
 from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
     play_wav, resolve_resource_file
-
+from ovos_plugin_manager.tts import OVOSTTSFactory
 
 
 class JarbasVoiceTerminalProtocol(HiveMindTerminalProtocol):
@@ -38,9 +37,8 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         super().__init__(*args, **kwargs)
         self.config = config
         self.loop = RecognizerLoop(self.config)
-        self.tts = TTSFactory.create(self.config["tts"])
+        self.tts = OVOSTTSFactory.create(self.config["tts"])
         LOG.debug("Using TTS engine: " + self.tts.__class__.__name__)
-        self.tts.validate()
 
     # Voice Output
     def speak(self, utterance):

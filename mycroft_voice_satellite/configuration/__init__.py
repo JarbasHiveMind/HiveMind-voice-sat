@@ -74,18 +74,7 @@ DEFAULT_CONFIGURATION = {
     },
 
     'log_blacklist': [],
-    'stt': {'deepspeech_server': {'uri': 'http://localhost:8080/stt'},
-            'deepspeech_stream_server': {
-                'stream_uri': 'http://localhost:8080/stt?format=16K_PCM16'},
-            'kaldi': {
-                'uri': 'http://localhost:8080/client/dynamic/recognize'},
-            'kaldi_vosk': {'model': '/path/to/model/folder'},
-            'kaldi_vosk_streaming': {'model': '/path/to/model/folder'},
-            "deepspeech": {"model": "path/to/model.pbmm",
-                           "scorer": "path/to/model.scorer"},
-            "deepspeech_streaming": {"model": "path/to/model.pbmm",
-                                     "scorer": "path/to/model.scorer"},
-            'module': 'google'},
+    'stt': {'module': 'google'},
     'tts': {'module': 'responsive_voice'}}
 
 

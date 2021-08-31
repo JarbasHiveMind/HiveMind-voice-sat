@@ -24,10 +24,10 @@ from pyee import EventEmitter
 from requests import RequestException
 from requests.exceptions import ConnectionError
 from mycroft_voice_satellite.configuration import CONFIGURATION
-from mycroft_voice_satellite.speech.hotword_factory import HotWordFactory
 from mycroft_voice_satellite.speech.mic import MutableMicrophone, \
     ResponsiveRecognizer
-from speech2text import STTFactory
+from ovos_plugin_manager.wakewords import OVOSWakeWordFactory
+from ovos_plugin_manager.stt import OVOSSTTFactory
 from queue import Queue, Empty
 from ovos_utils.log import LOG
 from mycroft_voice_satellite.playback import play_audio, play_mp3, play_ogg, \
@@ -360,7 +360,10 @@ class RecognizerLoop(EventEmitter):
             sound = data.get("sound")
             utterance = data.get("utterance")
             listen = data.get("listen", False)
-            engine = HotWordFactory.create_hotword(word, lang=self.lang)
+            engine = OVOSWakeWordFactory.create_hotword(word,
+                                                        loop=self,
+                                                        config=hot_words,
+                                                        lang=self.lang)
 
             self.hotword_engines[word] = {"engine": engine,
                                           "sound": sound,
@@ -370,12 +373,14 @@ class RecognizerLoop(EventEmitter):
     def create_wakeup_recognizer(self):
         LOG.info("creating stand up word engine")
         word = self.config.get("stand_up_word", "wake up")
-        return HotWordFactory.create_hotword(word, lang=self.lang, loop=self)
+        return OVOSWakeWordFactory.create_hotword(word, lang=self.lang,
+                                                  config=self.config_core,
+                                                  loop=self)
 
     def start_async(self):
         """Start consumer and producer threads."""
         self.state.running = True
-        stt = STTFactory.create(self.config_core["stt"])
+        stt = OVOSSTTFactory.create(self.config_core["stt"])
         queue = Queue()
         stream_handler = None
         if stt.can_stream:
