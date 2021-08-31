@@ -525,6 +525,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                     sound = self.hotword_engines[hotword]["sound"]
                     utterance = self.hotword_engines[hotword]["utterance"]
                     listen = self.hotword_engines[hotword]["listen"]
+                    language = self.hotword_engines[hotword]["lang"]
 
                     LOG.debug("Hot Word: " + hotword)
                     # If enabled, play a wave file with a short sound to audibly
@@ -592,6 +593,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
                     # reset bytearray to store wake word audio in, else many
                     # serial detections
                     byte_data = silence
+        return language
 
     def check_for_hotwords(self, audio_data, bus):
         # check hot word
@@ -632,7 +634,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         sec_per_buffer = float(source.CHUNK) / source.SAMPLE_RATE
 
         LOG.debug("Waiting for wake word...")
-        self._wait_until_wake_word(source, sec_per_buffer, bus)
+        language = self._wait_until_wake_word(source, sec_per_buffer, bus)
         LOG.debug("Wake word detected")
         self._listen_triggered = False
         if self._stop_signaled:
@@ -647,7 +649,7 @@ class ResponsiveRecognizer(speech_recognition.Recognizer):
         if self.auto_ambient_noise_adjustment:
             self._adjust_ambient_noise(source)
         LOG.debug("Thinking...")
-        return audio_data
+        return audio_data, language
 
     def _adjust_threshold(self, energy, seconds_per_buffer):
         if self.dynamic_energy_threshold and energy > 0:

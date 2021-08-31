@@ -26,7 +26,7 @@ from threading import Timer, Event, Thread
 from urllib.error import HTTPError
 
 from mycroft_voice_satellite.configuration import CONFIGURATION
-from jarbas_utils.log import LOG
+from ovos_utils.log import LOG
 
 RECOGNIZER_DIR = join(abspath(dirname(__file__)), "recognizer")
 INIT_TIMEOUT = 10  # In seconds
@@ -85,7 +85,6 @@ class PocketsphinxHotWord(HotWordEngine):
         self.sample_rate = self.listener_config.get("sample_rate", 1600)
         dict_name = self.create_dict(self.key_phrase, self.phonemes)
         config = self.create_config(dict_name, Decoder.default_config())
-        print(dict_name)
         self.decoder = Decoder(config)
 
     def create_dict(self, key_phrase, phonemes):
