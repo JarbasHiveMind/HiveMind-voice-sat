@@ -43,14 +43,15 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         self.tts.validate()
 
     # Voice Output
-    def speak(self, utterance):
-        LOG.info("SPEAK: " + utterance)
+    def speak(self, utterance, lang=None):
+        lang = lang or self.config.get('lang', 'en-us')
+        LOG.info("SPEAK " + lang + ": " + utterance)
         temppath = join(gettempdir(), self.tts.tts_name)
         if not isdir(temppath):
             makedirs(temppath)
         audio_file = join(temppath, str(hash(utterance))[1:] +
                           "." + self.tts.audio_ext)
-        self.tts.get_tts(utterance, audio_file)
+        self.tts.get_tts(utterance, audio_file, lang=lang)
         try:
             if audio_file.endswith(".wav"):
                 play_wav(audio_file).wait()
@@ -166,7 +167,8 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         assert isinstance(message, Message)
         if message.msg_type == "speak":
             utterance = message.data["utterance"]
-            self.speak(utterance)
+            lang = message.data.get('lang', self.config.get('lang', 'en-us'))
+            self.speak(utterance, lang)
             if message.data["expect_response"]:
                 self.loop.responsive_recognizer.trigger_listen()
         elif message.msg_type == "hive.complete_intent_failure":
