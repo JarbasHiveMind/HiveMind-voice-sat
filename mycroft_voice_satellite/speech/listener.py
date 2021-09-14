@@ -382,7 +382,7 @@ class RecognizerLoop(EventEmitter):
     def start_async(self):
         """Start consumer and producer threads."""
         self.state.running = True
-        stt = OVOSSTTFactory.create(self.config_core["stt"])
+        stt = OVOSSTTFactory.create(self.config_core)
         queue = Queue()
         stream_handler = None
         if stt.can_stream:

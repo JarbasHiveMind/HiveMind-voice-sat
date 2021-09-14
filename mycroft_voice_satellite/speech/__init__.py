@@ -10,5 +10,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from mycroft_voice_satellite.speech.tts_factory import TTSFactory
-from mycroft_voice_satellite.speech.hotword_factory import HotWordFactory
 from mycroft_voice_satellite.speech.stt_factory import STTFactory

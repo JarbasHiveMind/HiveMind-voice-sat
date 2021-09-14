@@ -37,7 +37,7 @@ class JarbasVoiceTerminal(HiveMindTerminal):
         super().__init__(*args, **kwargs)
         self.config = config
         self.loop = RecognizerLoop(self.config)
-        self.tts = OVOSTTSFactory.create(self.config["tts"])
+        self.tts = OVOSTTSFactory.create(self.config)
         LOG.debug("Using TTS engine: " + self.tts.__class__.__name__)
 
     # Voice Output
