@@ -1,11 +1,10 @@
 import time
 from threading import Lock
-
-from mycroft.configuration import Configuration
-from mycroft.messagebus.message import Message
+from hivemind_voice_satellite.config import Configuration
+from mycroft_bus_client import Message
 from mycroft.tts import TTSFactory
-from mycroft.util import check_for_signal
-from mycroft.util.log import LOG
+from ovos_utils.signal import check_for_signal
+from ovos_utils.log import LOG
 
 
 class TTSService:
@@ -13,15 +12,13 @@ class TTSService:
         self.bus = bus
         self._last_stop_signal = 0
         self.lock = Lock()
-        Configuration.set_config_update_handlers(self.bus)
 
         self.bus.on('mycroft.stop', self.handle_stop)
         self.bus.on('mycroft.audio.speech.stop', self.handle_stop)
         self.bus.on('speak', self.handle_speak)
 
         self.tts = TTSFactory.create()
-        self.tts.init(bus)
-        self.tts_hash = hash(str(Configuration.get().get('tts', '')))
+        self.tts.init(self.bus)
 
     def handle_speak(self, event):
         """Handle "speak" message
@@ -39,18 +36,6 @@ class TTSService:
             listen = event.data.get('expect_response', False)
             self.mute_and_speak(utterance, ident, listen)
 
-    def _maybe_reload_tts(self):
-        # update TTS object if configuration has changed
-        config = Configuration.get()
-        if self.tts_hash != hash(str(config.get('tts', ''))):
-            # Stop tts playback thread
-            self.tts.playback.stop()
-            self.tts.playback.join()
-            # Create new tts instance
-            self.tts = TTSFactory.create()
-            self.tts.init(self.bus)
-            self.tts_hash = hash(str(config.get('tts', '')))
-
     def mute_and_speak(self, utterance, ident, listen=False):
         """Mute mic and start speaking the utterance using selected tts backend.
 
@@ -58,7 +43,6 @@ class TTSService:
             utterance:  The sentence to be spoken
             ident:      Ident tying the utterance to the source query
         """
-        self._maybe_reload_tts()
         LOG.info("Speak: " + utterance)
         try:
             self.tts.execute(utterance, ident, listen)

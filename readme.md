@@ -64,9 +64,9 @@ Default values are
 
 You can set the configuration at
     
-    ~/.cache/json_database/HivemindVoiceSatellite.json
+    ~/.config/hivemind/hivemind.conf
     
-Otherwise default configuration will be used, check bellow for defaults
+Otherwise default configuration will be used, check below for defaults
 
 ### configure speech to text
 ```json
@@ -83,7 +83,7 @@ Otherwise default configuration will be used, check bellow for defaults
 {
     "lang": "en-us",
     "tts": {
-        "module": "responsive_voice"
+        "module": "mimic2"
     }
 }
 ```
@@ -131,26 +131,14 @@ add any number of hot words to config
 
 ```json
 {
-    "data_dir": "~/jarbasHiveMind/recordings",
     "listener": {
         "sample_rate": 16000,
         "channels": 1,
-        "record_wake_words": false,
-        "record_utterances": false,
-        "phoneme_duration": 120,
         "multiplier": 1.0,
-        "energy_ratio": 1.5,
-        "stand_up_word": "wake up",
-        "signal_folder": "/tmp/hivemind/ipc",
-        "listen_sound": "snd/start_listening.wav",
-        "error_sound": "snd/listening_error.mp3"
+        "energy_ratio": 1.5
     }
 }
 ```
-data_dir is where recordings are saved, 
-
-    {data_dir}/utterances
-    {data_dir}/hotwords
 
 you can optionally set device_index
 ```json
@@ -183,12 +171,10 @@ you shouldn"t need to change this, a common change is replacing ```aplay``` with
 
 ```json
 {
-    "playback": {
-        "play_wav_cmd": "aplay %1",
-        "play_mp3_cmd": "mpg123 %1",
-        "play_ogg_cmd": "ogg123 -q %1",
-        "play_fallback_cmd": "play %1"
-    }
+
+    "play_wav_cmd": "aplay %1",
+    "play_mp3_cmd": "mpg123 %1",
+    "play_ogg_cmd": "ogg123 -q %1"
 }
 
 ```

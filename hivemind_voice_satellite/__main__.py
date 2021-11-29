@@ -1,16 +1,15 @@
-from mycroft.configuration import setup_locale
-from mycroft.util import wait_for_exit_signal
-from mycroft.util.log import LOG
+from ovos_utils import wait_for_exit_signal
+from ovos_utils.log import LOG
 
 from hivemind_bus_client import HiveMessageBusClient
 from hivemind_voice_satellite import VoiceClient, TTSService, AudioService
+from hivemind_voice_satellite.config import setup_locale
 
 
 def main(access_key,
          host="wss://127.0.0.1",
          port=5678,
          crypto_key=None):
-
     # timezone/lang preferences from .conf
     setup_locale()
 
@@ -21,7 +20,8 @@ def main(access_key,
                                host=host,
                                ssl=host.startswith("wss:"),
                                useragent="VoiceSatelliteV0.2.0",
-                               self_signed=True, debug=True)
+                               self_signed=True,
+                               debug=False)
     bus.run_in_thread()
 
     # block until hivemind connects
@@ -60,4 +60,3 @@ if __name__ == '__main__':
          port=args.port,
          access_key=args.access_key,
          crypto_key=args.crypto_key)
-

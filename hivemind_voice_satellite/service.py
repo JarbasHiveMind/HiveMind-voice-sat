@@ -1,5 +1,6 @@
 from threading import Thread
-
+# do not reorder, config import needs to be first
+from hivemind_voice_satellite.config import Configuration
 from mycroft.client.speech.listener import RecognizerLoop
 from mycroft.client.speech.service import SpeechClient
 from mycroft.util.process_utils import ProcessStatus, StatusCallbackMap
