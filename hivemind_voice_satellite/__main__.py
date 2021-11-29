@@ -1,26 +1,27 @@
-
-from mycroft.audio.audioservice import AudioService
 from mycroft.configuration import setup_locale
 from mycroft.util import wait_for_exit_signal
 from mycroft.util.log import LOG
 
 from hivemind_bus_client import HiveMessageBusClient
-from hivemind_voice_satellite.service import VoiceClient
-from hivemind_voice_satellite.speech import TTSService
+from hivemind_voice_satellite import VoiceClient, TTSService, AudioService
 
 
-def main():
+def main(access_key,
+         host="wss://127.0.0.1",
+         port=5678,
+         crypto_key=None):
+
     # timezone/lang preferences from .conf
     setup_locale()
 
     # connect to hivemind
-    key = "RESISTENCEisFUTILE"
-    crypto_key = "resistanceISfutile"
-
-    bus = HiveMessageBusClient(key, crypto_key=crypto_key, ssl=True,
+    bus = HiveMessageBusClient(key=access_key,
+                               crypto_key=crypto_key,
+                               port=port,
+                               host=host,
+                               ssl=host.startswith("wss:"),
                                useragent="VoiceSatelliteV0.2.0",
-                               self_signed=True, debug=False)
-
+                               self_signed=True, debug=True)
     bus.run_in_thread()
 
     # block until hivemind connects
@@ -44,5 +45,19 @@ def main():
     audio.shutdown()
 
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--access_key", help="access key")
+    parser.add_argument("--crypto_key", help="payload encryption key", default=None)
+    parser.add_argument("--host", help="HiveMind host", default="wss://127.0.0.1")
+    parser.add_argument("--port", help="HiveMind port number", default=5678)
+
+    args = parser.parse_args()
+
+    main(host=args.host,
+         port=args.port,
+         access_key=args.access_key,
+         crypto_key=args.crypto_key)
+
