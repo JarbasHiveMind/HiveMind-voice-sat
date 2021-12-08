@@ -1,3 +1,5 @@
 hivemind_bus_client~=0.0.3a2
 ovos-plugin-manager~=0.0.3a3
-ovos-core~=0.0.2a1
+ovos-audio~=0.0.2a1
+ovos-speech~=0.0.2a1
+HiveMind_presence~=0.0.2a2
