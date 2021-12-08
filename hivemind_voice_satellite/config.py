@@ -1,4 +1,5 @@
 import json
+import os
 from os.path import join, isfile
 
 import xdg.BaseDirectory
@@ -50,9 +51,10 @@ def setup_ovos_core_config():
     if isfile(old_cfg.path):
         LOG.warning(f"You have a config file in {old_cfg.path}\n"
                     f"This location has been deprecated, use {hivemind_cfg.path} instead\n"
-                    f"Your old config file was automatically migrated but not deleted from the old location!")
-        old_cfg = {k: v for k, v in old_cfg.items() if k not in hivemind_cfg}
-        hivemind_cfg.update(old_cfg)
+                    f"Your old config file will be automatically migrated and deleted from the old location!")
+        hivemind_cfg.update({k: v for k, v in old_cfg.items()
+                             if k not in hivemind_cfg})
+        os.remove(old_cfg.path)
 
     # populate default config values
     default_cfg = {
