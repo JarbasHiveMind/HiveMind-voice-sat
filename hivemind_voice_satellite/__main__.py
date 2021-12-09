@@ -53,7 +53,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--access-key", help="access key", required=True)
     parser.add_argument("--crypto-key", help="payload encryption key", default=None)
-    parser.add_argument("--host", help="HiveMind host", default="wss://127.0.0.1")
+    parser.add_argument("--host", help="HiveMind host")
     parser.add_argument("--port", help="HiveMind port number", default=5678)
     parser.add_argument("--self-signed", help="accept self signed ssl certificates", action="store_true")
 
