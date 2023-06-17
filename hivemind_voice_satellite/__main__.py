@@ -1,8 +1,9 @@
 from hivemind_bus_client import HiveMessageBusClient
 from hivemind_presence import LocalDiscovery
+from ovos_audio.service import PlaybackService
 from ovos_utils import wait_for_exit_signal
 
-from hivemind_voice_satellite import VoiceClient, TTSService, AudioService
+from hivemind_voice_satellite import VoiceClient
 
 
 def main(access_key=None,
@@ -21,20 +22,19 @@ def main(access_key=None,
                                    self_signed=self_signed)
         bus.connect()
 
-    # create Audio Output interface (Music)
-    audio = AudioService(bus)
-
-    # Initialize TTS
-    tts = TTSService(bus)
+    # create Audio Output interface (TTS/Music)
+    audio = PlaybackService(bus=bus)
+    audio.setDaemon(True)
+    audio.start()
 
     # STT listener thread
-    service = VoiceClient(bus)
+    service = VoiceClient(bus=bus)
     service.setDaemon(True)
     service.start()
 
     wait_for_exit_signal()
 
-    tts.shutdown()
+    service.shutdown()
     audio.shutdown()
 
 

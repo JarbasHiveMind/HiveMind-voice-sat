@@ -1,2 +1,1 @@
 from hivemind_voice_satellite.service import VoiceClient
-from hivemind_voice_satellite.speech import TTSService
