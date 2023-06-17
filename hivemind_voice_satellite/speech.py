@@ -1,10 +1,10 @@
 import time
 from threading import Lock
-from hivemind_voice_satellite.config import Configuration
-from mycroft_bus_client import Message
-from mycroft.tts import TTSFactory
-from ovos_utils.signal import check_for_signal
+
+from ovos_bus_client import Message
+from ovos_plugin_manager.tts import OVOSTTSFactory
 from ovos_utils.log import LOG
+from ovos_utils.signal import check_for_signal
 
 
 class TTSService:
@@ -17,7 +17,7 @@ class TTSService:
         self.bus.on('mycroft.audio.speech.stop', self.handle_stop)
         self.bus.on('speak', self.handle_speak)
 
-        self.tts = TTSFactory.create()
+        self.tts = OVOSTTSFactory.create()
         self.tts.init(self.bus)
 
     def handle_speak(self, event):

@@ -1,53 +1,36 @@
-from threading import Thread
-# do not reorder, config import needs to be first
-from hivemind_voice_satellite.config import Configuration
-from mycroft.client.speech.listener import RecognizerLoop
-from mycroft.client.speech.service import SpeechClient
-from mycroft.util.process_utils import ProcessStatus, StatusCallbackMap
+from hivemind_bus_client.client import HiveMessageBusClient
+from ovos_dinkum_listener.service import OVOSDinkumVoiceService
 from ovos_utils.log import LOG
 
 
 def on_ready():
-    LOG.info('Speech client is ready.')
+    LOG.info('HiveMind Voice Satellite is ready.')
+
+
+def on_started():
+    LOG.info('HiveMind Voice Satellite started.')
+
+
+def on_alive():
+    LOG.info('HiveMind Voice Satellite alive.')
 
 
 def on_stopping():
-    LOG.info('Speech service is shutting down...')
+    LOG.info('HiveMind Voice Satellite is shutting down...')
 
 
 def on_error(e='Unknown'):
-    LOG.error(f'Speech service failed to launch ({e}).')
+    LOG.error(f'HiveMind Voice Satellite failed to launch ({e}).')
 
 
-class VoiceClient(SpeechClient):
-    """mycroft speech client, but bus is replaced with hivemind connection"""
+class VoiceClient(OVOSDinkumVoiceService):
+    """HiveMind Voice Satellite, but bus is replaced with hivemind connection"""
 
-    def __init__(self, bus, on_ready=on_ready, on_error=on_error,
-                 on_stopping=on_stopping, watchdog=lambda: None):
-        Thread.__init__(self)
+    def __init__(self, bus: HiveMessageBusClient, on_ready=on_ready, on_error=on_error,
+                 on_stopping=on_stopping, on_alive=on_alive,
+                 on_started=on_started, watchdog=lambda: None, mic=None):
+        super().__init__(on_ready, on_error, on_stopping, on_alive, on_started, watchdog, mic)
         self.bus = bus
 
-        # watchdog
-        callbacks = StatusCallbackMap(on_ready=on_ready,
-                                      on_error=on_error,
-                                      on_stopping=on_stopping)
-        self.status = ProcessStatus('speech', callback_map=callbacks)
-        self.status.set_started()
-        self.status.bind(self.bus)
-
-        # Register handlers on internal RecognizerLoop bus (WakeWord/STT)
-        self.connect_bus_events()
-        self.loop = RecognizerLoop(self.bus, watchdog)
-        self.connect_loop_events()
-
-    def handle_speak(self, event):
-        """
-        recognizer loop wants to speak.
-        i think this never happens (and it should not!!)
-        but the api for it is in upstream code, disable it
-        """
+    def _connect_to_bus(self):
         pass
-
-    def handle_complete_intent_failure(self, event):
-        LOG.info("Failed to find intent.")
-        # TODO play some error sound

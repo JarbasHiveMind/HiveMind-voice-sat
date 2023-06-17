@@ -1,34 +1,25 @@
-from ovos_utils import wait_for_exit_signal
-from ovos_utils.log import LOG
-from HiveMind_presence import LocalDiscovery
 from hivemind_bus_client import HiveMessageBusClient
+from hivemind_presence import LocalDiscovery
+from ovos_utils import wait_for_exit_signal
+
 from hivemind_voice_satellite import VoiceClient, TTSService, AudioService
-from hivemind_voice_satellite.config import setup_locale
 
 
 def main(access_key=None,
          host="wss://127.0.0.1",
          port=5678,
-         crypto_key=None,
+         password=None,
+         self_signed=False,
          bus=None):
-    # timezone/lang preferences from .conf
-    setup_locale()
-
     # connect to hivemind
     if not bus:
         bus = HiveMessageBusClient(key=access_key,
-                                   crypto_key=crypto_key,
+                                   password=password,
                                    port=port,
                                    host=host,
-                                   ssl=host.startswith("wss:"),
-                                   useragent="VoiceSatelliteV0.2.0",
-                                   self_signed=True,
-                                   debug=False)
-        bus.run_in_thread()
-
-        # block until hivemind connects
-        LOG.info("Waiting for Hivemind connection")
-        bus.connected_event.wait()
+                                   useragent="VoiceSatelliteV0.3.0",
+                                   self_signed=self_signed)
+        bus.connect()
 
     # create Audio Output interface (Music)
     audio = AudioService(bus)
@@ -52,7 +43,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--access-key", help="access key", required=True)
-    parser.add_argument("--crypto-key", help="payload encryption key", default=None)
+    parser.add_argument("--password", help="password", default=None)
     parser.add_argument("--host", help="HiveMind host")
     parser.add_argument("--port", help="HiveMind port number", default=5678)
     parser.add_argument("--self-signed", help="accept self signed ssl certificates", action="store_true")
@@ -85,4 +76,4 @@ if __name__ == '__main__':
     main(host=args.host,
          port=args.port,
          access_key=args.access_key,
-         crypto_key=args.crypto_key)
+         password=args.password)
