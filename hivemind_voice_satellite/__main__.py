@@ -23,7 +23,7 @@ def main(access_key=None,
         bus.connect()
 
     # create Audio Output interface (TTS/Music)
-    audio = PlaybackService(bus=bus)
+    audio = PlaybackService(bus=bus, disable_ocp=True)
     audio.setDaemon(True)
     audio.start()
 
