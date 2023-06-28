@@ -4,8 +4,8 @@ OpenVoiceOS Satellite, connect to [HiveMind](https://github.com/JarbasHiveMind/H
 
 ![](./voice_terminal.png)
 
+NOTE: needs https://github.com/OpenVoiceOS/ovos-audio/pull/17
 
-![](./voice_sat.png)
 
 ## Install
 
@@ -15,10 +15,10 @@ Install dependencies (if needed)
 sudo apt-get install -y libpulse-dev libasound2-dev
 ```
 
-Install with pip
+Install with pip (hivemind pypi version is VERY outdated)
 
 ```bash
-$ pip install HiveMind-voice-sat
+$ pip install git+https://github.com/JarbasHiveMind/HiveMind-voice-sat
 ```
 
 ## Usage

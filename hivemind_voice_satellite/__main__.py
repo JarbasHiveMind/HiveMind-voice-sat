@@ -1,8 +1,8 @@
+import click
 from hivemind_bus_client import HiveMessageBusClient
-from hivemind_presence import LocalDiscovery
 from ovos_audio.service import PlaybackService
 from ovos_utils import wait_for_exit_signal
-import click
+
 from hivemind_voice_satellite import VoiceClient
 
 
@@ -13,7 +13,6 @@ from hivemind_voice_satellite import VoiceClient
 @click.option("--port", help="HiveMind port number", type=int, default=5678)
 @click.option("--selfsigned", help="accept self signed certificates", is_flag=True)
 def connect(host, key, password, port, selfsigned):
-
     if not host.startswith("ws"):
         print("Invalid host, please specify a protocol")
         print(f"ws://{host} or wss://{host}")
