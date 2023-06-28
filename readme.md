@@ -1,18 +1,8 @@
 # HiveMind Voice Satellite
 
-Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/JarbasSkills/skill-hivemind)
+OpenVoiceOS Satellite, connect to [HiveMind](https://github.com/JarbasHiveMind/HiveMind-core)
 
 ![](./voice_terminal.png)
-
-
-* [Setup](#setup)
-* [Usage](#usage)
-* [Configuration](#configuration)
-  - [configure speech to text](#configure-speech-to-text)
-  - [configure text to speech](#configure-text-to-speech)
-  - [configure hotwords](#configure-hotwords)
-  - [configure listener](#configure-listener)
-  - [configure audio playback](#configure-audio-playback)
 
 
 ![](./voice_sat.png)
@@ -22,7 +12,7 @@ Mycroft Voice Satellite, connect to  [Mycroft HiveMind](https://github.com/Jarba
 Install dependencies (if needed)
 
 ```bash
-sudo apt-get install -y python-pyaudio swig libpulse-dev libasound2-dev
+sudo apt-get install -y libpulse-dev libasound2-dev
 ```
 
 Install with pip
@@ -30,151 +20,27 @@ Install with pip
 ```bash
 $ pip install HiveMind-voice-sat
 ```
+
 ## Usage
 
-If host is not provided auto discovery will be used
-
 ```bash
-$ HiveMind-voice-sat --help
+Usage: hivemind-voice-sat [OPTIONS]
 
-usage: HiveMind-voice-sat [-h] [--access_key ACCESS_KEY] [--crypto_key CRYPTO_KEY] [--name NAME] [--host HOST] [--port PORT]
+  connect to HiveMind
 
-optional arguments:
-  -h, --help            show this help message and exit
-  --access_key ACCESS_KEY
-                        access key
-  --crypto_key CRYPTO_KEY
-                        payload encryption key
-  --name NAME           human readable device name
-  --host HOST           HiveMind host
-  --port PORT           HiveMind port number
-```
-
-Default values are
+Options:
+  --host TEXT      hivemind host
+  --key TEXT       Access Key
+  --password TEXT  Password for key derivation
+  --port INTEGER   HiveMind port number
+  --selfsigned     accept self signed certificates
+  --help           Show this message and exit.
 
 ```
---access_key - "RESISTENCEisFUTILE"
---crypto_key - "resistanceISfutile"
---name - "JarbasVoiceTerminal"
---port" - 5678
 
-```
 
 ## Configuration
 
-You can set the configuration at
+Voice satellite uses the default OpenVoiceOS configuration `~/.config/mycroft/mycroft.conf`
     
-    ~/.config/hivemind/hivemind.conf
-    
-Otherwise default configuration will be used, check below for defaults
-
-### configure speech to text
-```json
-{
-    "lang": "en-us",
-    "stt": {
-        "module": "google"
-    }
-}
-```
-
-### configure text to speech
-```json
-{
-    "lang": "en-us",
-    "tts": {
-        "module": "mimic2"
-    }
-}
-```
-
-### Configure hotwords
-
-add any number of hot words to config
-- hot word can be any engine (snowboy/pocketsphinx/precise)
-- hot word can trigger listening or not
-- hot word can play a sound or not
-- hot word can be treated as full utterance or not
-
-```json
-{
-    "hotwords": {
-        "hey mycroft": {
-            "module": "pocketsphinx",
-            "phonemes": "HH EY . M AY K R AO F T",
-            "threshold": 1e-90,
-            "lang": "en-us",
-            "sound": "snd/start_listening.wav",
-            "listen": true
-        },
-        "thank you": {
-            "module": "pocketsphinx",
-            "phonemes": "TH AE NG K . Y UW .",
-            "threshold": 0.1,
-            "listen": false,
-            "utterance": "thank you",
-            "active": false,
-            "sound": "",
-            "lang": "en-us"
-        },
-        "wake up": {
-            "module": "pocketsphinx",
-            "phonemes": "W EY K . AH P",
-            "threshold": 1e-20,
-            "lang": "en-us"
-        }
-    }
-}
-```
-
-### configure listener
-
-```json
-{
-    "listener": {
-        "sample_rate": 16000,
-        "channels": 1,
-        "multiplier": 1.0,
-        "energy_ratio": 1.5
-    }
-}
-```
-
-you can optionally set device_index
-```json
-{
-    "listener": {
-        "device_index": 0
-    }
-}
-```  
-or device_name, which is a name or regex pattern
-```json
-{
-    "listener": {
-        "device_name": "respeaker"
-    }
-}
-```  
-
-To trigger listening without a wakeword you can use an external signal
-
-```bash
- touch {ipc_path}/signal/startListening
-```
-
-ipc_path can be set in config, default is ```/tmp/hivemind/ipc```
-
-### Configure audio playback
-
-you shouldn"t need to change this, a common change is replacing ```aplay``` with ```paplay``` when using pulseaudio, or use sox for everything
-
-```json
-{
-
-    "play_wav_cmd": "aplay %1",
-    "play_mp3_cmd": "mpg123 %1",
-    "play_ogg_cmd": "ogg123 -q %1"
-}
-
-```
+See configuration from [ovos-dinkum-listener](https://github.com/OpenVoiceOS/ovos-dinkum-listener) for default values

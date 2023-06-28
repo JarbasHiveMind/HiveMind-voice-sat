@@ -30,7 +30,7 @@ setup(
     description='Hivemind Voice Satellite',
     entry_points={
         'console_scripts': [
-            'hivemind-voice-sat=hivemind_voice_satellite.__main__:main'
+            'hivemind-voice-sat=hivemind_voice_satellite.__main__:connect'
         ]
     }
 )
