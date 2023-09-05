@@ -2,7 +2,6 @@ import click
 from hivemind_bus_client import HiveMessageBusClient
 from ovos_audio.service import PlaybackService
 from ovos_utils import wait_for_exit_signal
-
 from hivemind_voice_satellite import VoiceClient
 
 
@@ -37,10 +36,20 @@ def connect(host, key, password, port, selfsigned):
     service.daemon = True
     service.start()
 
+    try:
+        from ovos_PHAL.service import PHAL
+        phal = PHAL(bus=bus)
+        phal.start()
+    except ImportError:
+        print("PHAL is not available")
+        phal = None
+
     wait_for_exit_signal()
 
     service.stop()
     audio.shutdown()
+    if phal:
+        phal.shutdown()
 
 
 if __name__ == '__main__':
