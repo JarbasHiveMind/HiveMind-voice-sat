@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/HEAD)
 
-[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/d707b4b8a3beba8cd380592f954ecd8f7ee24cec...HEAD)
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a2...HEAD)
+
+**Implemented enhancements:**
+
+- feat/PHAL support [\#27](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/27) ([JarbasAl](https://github.com/JarbasAl))
+
+## [V2.0.0a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a2) (2023-08-03)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/d707b4b8a3beba8cd380592f954ecd8f7ee24cec...V2.0.0a2)
 
 **Implemented enhancements:**
 
