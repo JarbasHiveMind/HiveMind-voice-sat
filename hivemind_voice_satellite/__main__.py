@@ -10,11 +10,12 @@ from hivemind_voice_satellite import VoiceClient
 @click.option("--host", help="hivemind host", type=str, default="wss://127.0.0.1")
 @click.option("--key", help="Access Key", type=str)
 @click.option("--password", help="Password for key derivation", type=str)
+@click.option("--crypto_key", help="Crypto Key", type=str)
 @click.option("--port", help="HiveMind port number", type=int, default=5678)
 @click.option("--selfsigned", help="accept self signed certificates", is_flag=True)
 def connect(host, key, password, port, selfsigned):
     init_service_logger("HiveMind-voice-sat")
-    
+
     if not host.startswith("ws"):
         LOG.error("Invalid host, please specify a protocol")
         LOG.error(f"ws://{host} or wss://{host}")
@@ -25,6 +26,7 @@ def connect(host, key, password, port, selfsigned):
                                password=password,
                                port=port,
                                host=host,
+                               crypto_key=crypto_key
                                useragent="VoiceSatelliteV0.3.0",
                                self_signed=selfsigned)
     bus.connect()
