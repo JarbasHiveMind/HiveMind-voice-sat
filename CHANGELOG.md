@@ -2,7 +2,19 @@
 
 ## [Unreleased](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/HEAD)
 
-[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a3...HEAD)
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a4...HEAD)
+
+**Implemented enhancements:**
+
+- add site\_id [\#35](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/35) ([JarbasAl](https://github.com/JarbasAl))
+
+**Fixed bugs:**
+
+- TypeError: HiveMessage.\_\_init\_\_\(\) got an unexpected keyword argument 'ciphertext' [\#25](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/25)
+
+## [V2.0.0a4](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a4) (2023-09-06)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a3...V2.0.0a4)
 
 **Fixed bugs:**
 
