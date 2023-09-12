@@ -12,7 +12,8 @@ from hivemind_voice_satellite import VoiceClient
 @click.option("--password", help="Password for key derivation", type=str)
 @click.option("--port", help="HiveMind port number", type=int, default=5678)
 @click.option("--selfsigned", help="accept self signed certificates", is_flag=True)
-def connect(host, key, password, port, selfsigned):
+@click.option("--siteid", help="location identifier for message.context", type=str, default="unknown")
+def connect(host, key, password, port, selfsigned, siteid):
     init_service_logger("HiveMind-voice-sat")
     
     if not host.startswith("ws"):
@@ -27,7 +28,7 @@ def connect(host, key, password, port, selfsigned):
                                host=host,
                                useragent="VoiceSatelliteV0.3.0",
                                self_signed=selfsigned)
-    bus.connect()
+    bus.connect(site_id=siteid)
 
     # create Audio Output interface (TTS/Music)
     audio = PlaybackService(bus=bus, disable_ocp=True, validate_source=False)
