@@ -8,7 +8,7 @@ from hivemind_bus_client.identity import NodeIdentity
 
 
 @click.command(help="connect to HiveMind")
-@click.option("--host", help="hivemind host", type=str, default="wss://127.0.0.1")
+@click.option("--host", help="hivemind host", type=str, default="")
 @click.option("--key", help="Access Key", type=str, default="")
 @click.option("--password", help="Password for key derivation", type=str, default="")
 @click.option("--port", help="HiveMind port number", type=int, default=5678)
@@ -18,16 +18,19 @@ def connect(host, key, password, port, selfsigned, siteid):
 
     init_service_logger("HiveMind-voice-sat")
 
-    if not password or not key or not siteid:
-        identity = NodeIdentity()
-        password = password or identity.password
-        key = key or identity.access_key
-        siteid = siteid or identity.site_id or "unknown"
+    identity = NodeIdentity()
+    password = password or identity.password
+    key = key or identity.access_key
+    siteid = siteid or identity.site_id or "unknown"
+    host = host or identity.default_master
 
-    if not key or not password:
-        raise RuntimeError("NodeIdentity not set, please pass key and password or "
+    if not host.startswith("ws://") and not host.startswith("wss://"):
+        host = "ws://" + host
+
+    if not key or not password or not host:
+        raise RuntimeError("NodeIdentity not set, please pass key/password/host or "
                            "call 'hivemind-client set-identity'")
-    
+
     if not host.startswith("ws"):
         LOG.error("Invalid host, please specify a protocol")
         LOG.error(f"ws://{host} or wss://{host}")
