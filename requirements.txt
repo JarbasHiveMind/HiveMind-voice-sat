@@ -1,4 +1,4 @@
-hivemind_bus_client>=0.0.4a9
+hivemind_bus_client>=0.0.4a10
 ovos-audio
 ovos-dinkum-listener>=0.0.2, < 0.1.0
 ovos-vad-plugin-webrtcvad
