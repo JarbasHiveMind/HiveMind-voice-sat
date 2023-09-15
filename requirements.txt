@@ -5,3 +5,4 @@ ovos-vad-plugin-webrtcvad
 ovos-stt-plugin-server
 ovos-tts-plugin-server
 click
+hivemind-ggwave

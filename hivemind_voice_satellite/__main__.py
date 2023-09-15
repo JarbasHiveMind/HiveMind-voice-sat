@@ -4,7 +4,9 @@ from ovos_audio.service import PlaybackService
 from ovos_utils import wait_for_exit_signal
 from ovos_utils.log import init_service_logger, LOG
 from hivemind_voice_satellite import VoiceClient
+from threading import Event
 from hivemind_bus_client.identity import NodeIdentity
+from hivemind_ggwave import GGWaveSlave
 
 
 @click.command(help="connect to HiveMind")
@@ -24,12 +26,38 @@ def connect(host, key, password, port, selfsigned, siteid):
     siteid = siteid or identity.site_id or "unknown"
     host = host or identity.default_master
 
-    if not host.startswith("ws://") and not host.startswith("wss://"):
-        host = "ws://" + host
+    if not password:
+        LOG.info("starting hivemind-ggwave, waiting for audio password")
+        try:
+
+            ggwave = GGWaveSlave(key=key)  # reuse existing key
+
+            ready = Event()
+
+            def handle_complete(message):
+                nonlocal identity, password, key, host, ready
+                identity.reload()
+                password = identity.password
+                host = identity.default_master
+                LOG.info(f"will connect to: {host}")
+                ready.set()
+
+
+            ggwave.bus.on("hm.ggwave.identity_updated",
+                          handle_complete)
+            ggwave.start()
+
+            ready.wait()
+
+        except Exception as e:
+            LOG.exception("hivemind-ggwave failed to start")
 
     if not key or not password or not host:
         raise RuntimeError("NodeIdentity not set, please pass key/password/host or "
                            "call 'hivemind-client set-identity'")
+
+    if not host.startswith("ws://") and not host.startswith("wss://"):
+        host = "ws://" + host
 
     if not host.startswith("ws"):
         LOG.error("Invalid host, please specify a protocol")
