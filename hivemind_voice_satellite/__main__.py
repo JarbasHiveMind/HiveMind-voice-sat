@@ -39,6 +39,7 @@ def connect(host, key, password, port, selfsigned, siteid):
                 identity.reload()
                 password = identity.password
                 host = identity.default_master
+                key = identity.access_key
                 LOG.info(f"will connect to: {host}")
                 ready.set()
 
@@ -48,6 +49,8 @@ def connect(host, key, password, port, selfsigned, siteid):
             ggwave.start()
 
             ready.wait()
+
+            ggwave.stop()
 
         except Exception as e:
             LOG.exception("hivemind-ggwave failed to start")
