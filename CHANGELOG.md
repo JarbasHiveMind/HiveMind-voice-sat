@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/HEAD)
 
-[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a6...HEAD)
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a7...HEAD)
+
+**Fixed bugs:**
+
+- mycroft.mic.listen [\#38](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/38) ([JarbasAl](https://github.com/JarbasAl))
+
+## [V2.0.0a7](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a7) (2023-09-15)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a6...V2.0.0a7)
 
 **Implemented enhancements:**
 
