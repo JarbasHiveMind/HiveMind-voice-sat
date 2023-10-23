@@ -29,8 +29,8 @@ class VoiceClient(OVOSDinkumVoiceService):
     def __init__(self, bus: HiveMessageBusClient, on_ready=on_ready, on_error=on_error,
                  on_stopping=on_stopping, on_alive=on_alive,
                  on_started=on_started, watchdog=lambda: None, mic=None):
-        super().__init__(on_ready, on_error, on_stopping, on_alive, on_started, watchdog, mic)
-        self.bus = bus
+        super().__init__(on_ready, on_error, on_stopping, on_alive, on_started, watchdog, mic,
+                         bus=bus, validate_source=False)
 
     def _connect_to_bus(self):
         pass

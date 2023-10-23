@@ -1,12 +1,14 @@
+from threading import Event
+
 import click
 from hivemind_bus_client import HiveMessageBusClient
+from hivemind_bus_client.identity import NodeIdentity
+from hivemind_ggwave import GGWaveSlave
 from ovos_audio.service import PlaybackService
 from ovos_utils import wait_for_exit_signal
 from ovos_utils.log import init_service_logger, LOG
+
 from hivemind_voice_satellite import VoiceClient
-from threading import Event
-from hivemind_bus_client.identity import NodeIdentity
-from hivemind_ggwave import GGWaveSlave
 
 
 @click.command(help="connect to HiveMind")
@@ -17,7 +19,6 @@ from hivemind_ggwave import GGWaveSlave
 @click.option("--selfsigned", help="accept self signed certificates", is_flag=True)
 @click.option("--siteid", help="location identifier for message.context", type=str, default="")
 def connect(host, key, password, port, selfsigned, siteid):
-
     init_service_logger("HiveMind-voice-sat")
 
     identity = NodeIdentity()
@@ -42,7 +43,6 @@ def connect(host, key, password, port, selfsigned, siteid):
                 key = identity.access_key
                 LOG.info(f"will connect to: {host}")
                 ready.set()
-
 
             ggwave.bus.on("hm.ggwave.identity_updated",
                           handle_complete)
