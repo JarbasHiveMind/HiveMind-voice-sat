@@ -1,6 +1,7 @@
 from hivemind_bus_client.client import HiveMessageBusClient
 from ovos_dinkum_listener.service import OVOSDinkumVoiceService
 from ovos_utils.log import LOG
+from ovos_config.locale import setup_locale
 
 
 def on_ready():
@@ -29,6 +30,7 @@ class VoiceClient(OVOSDinkumVoiceService):
     def __init__(self, bus: HiveMessageBusClient, on_ready=on_ready, on_error=on_error,
                  on_stopping=on_stopping, on_alive=on_alive,
                  on_started=on_started, watchdog=lambda: None, mic=None):
+        setup_locale()  # read mycroft.conf for default lang/timezone in all modules (eg, lingua_franca)
         super().__init__(on_ready, on_error, on_stopping, on_alive, on_started, watchdog, mic,
                          bus=bus, validate_source=False)
 
