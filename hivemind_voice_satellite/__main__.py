@@ -77,7 +77,7 @@ def connect(host, key, password, port, selfsigned, siteid):
     bus.connect(site_id=siteid)
 
     # create Audio Output interface (TTS/Music)
-    audio = PlaybackService(bus=bus, disable_ocp=True, validate_source=False)
+    audio = PlaybackService(bus=bus, validate_source=False)
     audio.daemon = True
     audio.start()
 
