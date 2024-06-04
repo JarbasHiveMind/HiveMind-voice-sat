@@ -1,5 +1,20 @@
 # Changelog
 
+## [Unreleased](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/HEAD)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a9...HEAD)
+
+**Closed issues:**
+
+- Install of HiveMind-voice-sat on Raspberry PI 3B+ [\#40](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/40)
+- PHAL doesn't connect to the message bus. [\#32](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/32)
+- Dependency issue when trying to install alpha [\#26](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/26)
+- Doesn't reconnect to the listener [\#24](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/24)
+
+## [V2.0.0a9](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a9) (2023-10-25)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a8...V2.0.0a9)
+
 ## [V2.0.0a8](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a8) (2023-10-23)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a7...V2.0.0a8)
