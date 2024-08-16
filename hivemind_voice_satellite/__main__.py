@@ -37,7 +37,8 @@ def launch_bus_daemon() -> MessageBusClient:
 @click.option("--port", help="HiveMind port number", type=int, default=5678)
 @click.option("--selfsigned", help="accept self signed certificates", is_flag=True)
 @click.option("--siteid", help="location identifier for message.context", type=str, default="")
-def connect(host, key, password, port, selfsigned, siteid):
+@click.option("--fakebus", help="use FakeBus instead of real websocket", is_flag=True)
+def connect(host, key, password, port, selfsigned, siteid, fakebus):
     init_service_logger("HiveMind-voice-sat")
 
     identity = NodeIdentity()
@@ -49,7 +50,6 @@ def connect(host, key, password, port, selfsigned, siteid):
     if not password:
         LOG.info("starting hivemind-ggwave, waiting for audio password")
         try:
-
             ggwave = GGWaveSlave(key=key)  # reuse existing key
 
             ready = Event()
@@ -86,8 +86,11 @@ def connect(host, key, password, port, selfsigned, siteid):
         LOG.error(f"ws://{host} or wss://{host}")
         exit(1)
 
-    # TODO - flag for fakebus
-    internal_bus = launch_bus_daemon() or FakeBus()
+    # Check for fakebus flag
+    if fakebus:
+        internal_bus = FakeBus()
+    else:
+        internal_bus = launch_bus_daemon() or FakeBus()
 
     # connect to hivemind
     bus = HiveMessageBusClient(key=key,
