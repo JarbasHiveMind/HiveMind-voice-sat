@@ -8,3 +8,4 @@ ovos-tts-plugin-server
 ovos-ww-plugin-vosk
 click
 hivemind-ggwave
+ovos-messagebus
