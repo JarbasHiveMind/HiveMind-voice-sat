@@ -1,6 +1,6 @@
 hivemind_bus_client>=0.0.4a10
 ovos-audio
-ovos-dinkum-listener>=0.0.3a14, < 0.1.0
+ovos-dinkum-listener>=0.0.3, < 1.0.0
 ovos-microphone-plugin-alsa
 ovos-vad-plugin-silero
 ovos-stt-plugin-server
