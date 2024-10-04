@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/HEAD)
+## [V2.0.0a10](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a10) (2024-06-04)
 
-[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a9...HEAD)
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a9...V2.0.0a10)
 
 **Closed issues:**
 
