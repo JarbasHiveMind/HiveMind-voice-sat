@@ -1,5 +1,9 @@
 # Changelog
 
+## [V2.0.0a12](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a12) (2024-10-23)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a11...V2.0.0a12)
+
 ## [V2.0.0a11](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/V2.0.0a11) (2024-10-04)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/V2.0.0a10...V2.0.0a11)
