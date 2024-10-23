@@ -4,9 +4,6 @@ OpenVoiceOS Satellite, connect to [HiveMind](https://github.com/JarbasHiveMind/H
 
 ![](./voice_terminal.png)
 
-NOTE: needs https://github.com/OpenVoiceOS/ovos-audio/pull/17
-
-
 ## Install
 
 Install dependencies (if needed)
@@ -42,5 +39,14 @@ Options:
 ## Configuration
 
 Voice satellite uses the default OpenVoiceOS configuration `~/.config/mycroft/mycroft.conf`
-    
-See configuration from [ovos-dinkum-listener](https://github.com/OpenVoiceOS/ovos-dinkum-listener) for default values
+
+Supported plugin types:
+- Microphone  (required)
+- VAD  (required)
+- WakeWord (required)
+- STT  (required)
+- TTS  (required)
+- Audio Transformers  (optional, None by default)
+- Dialog Transformers  (optional, None by default)
+- TTS Transformers  (optional, None by default)
+- PHAL  (optional, None by default)
