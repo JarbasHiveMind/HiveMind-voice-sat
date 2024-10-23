@@ -42,15 +42,22 @@ Options:
 
 Voice satellite is built on top of [ovos-listener](https://openvoiceos.github.io/ovos-technical-manual/speech_service/) and [ovos-audio](https://openvoiceos.github.io/ovos-technical-manual/audio_service/), it uses the same OpenVoiceOS configuration `~/.config/mycroft/mycroft.conf`
 
-Supported plugin types:
-- [Microphone](https://openvoiceos.github.io/ovos-technical-manual/mic_plugins/) (required)
-- [VAD](https://openvoiceos.github.io/ovos-technical-manual/vad_plugins/) (required)
-- [WakeWord](https://openvoiceos.github.io/ovos-technical-manual/ww_plugins/) (required)
-- [STT](https://openvoiceos.github.io/ovos-technical-manual/stt_plugins/) (required)
-- [TTS](https://openvoiceos.github.io/ovos-technical-manual/tts_plugins/) (required)
-- [Media Playback Plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) (optional)
-- [OCP Plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) (optional)
-- [Audio Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) (optional)
-- [Dialog Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) (optional)
-- [TTS Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) (optional)
-- [PHAL](https://openvoiceos.github.io/ovos-technical-manual/PHAL/) (optional)
+Supported plugins:
+
+| Plugin Type | Description | Required | Link |
+|-------------|-------------|----------|------|
+| Microphone | Captures voice input | Yes | [Microphone](https://openvoiceos.github.io/ovos-technical-manual/mic_plugins/) |
+| VAD | Voice Activity Detection | Yes | [VAD](https://openvoiceos.github.io/ovos-technical-manual/vad_plugins/) |
+| WakeWord | Detects wake words for interaction | Yes* | [WakeWord](https://openvoiceos.github.io/ovos-technical-manual/ww_plugins/) |
+| STT | speech-to-text (STT)| Yes | [STT](https://openvoiceos.github.io/ovos-technical-manual/stt_plugins/) |
+| TTS | text-to-speech (TTS) | Yes | [TTS](https://openvoiceos.github.io/ovos-technical-manual/tts_plugins) |
+| Media Playback Plugins | Enables media playback (e.g., "play Metallica") | No | [Media Playback Plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) |
+| OCP Plugins | Provides playback support for URLs (e.g., YouTube) | No | [OCP Plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) |
+| Audio Transformers | Processes audio before speech-to-text (STT) | No | [Audio Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
+| Dialog Transformers | Processes text before text-to-speech (TTS) | No | [Dialog Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
+| TTS Transformers | Processes audio after text-to-speech (TTS) | No | [TTS Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
+| PHAL | Provides platform-specific support (e.g., Mark 1) | No | [PHAL](https://openvoiceos.github.io/ovos-technical-manual/PHAL/) |
+
+* can be skipped with [continuous listening mode](https://openvoiceos.github.io/ovos-technical-manual/speech_service/#modes-of-operation)
+
+
