@@ -40,15 +40,17 @@ Options:
 
 ## Configuration
 
-Voice satellite uses the default OpenVoiceOS configuration `~/.config/mycroft/mycroft.conf`
+Voice satellite is built on top of [ovos-listener](https://openvoiceos.github.io/ovos-technical-manual/speech_service/) and [ovos-audio](https://openvoiceos.github.io/ovos-technical-manual/audio_service/), it uses the same OpenVoiceOS configuration `~/.config/mycroft/mycroft.conf`
 
 Supported plugin types:
-- Microphone  (required)
-- VAD  (required)
-- WakeWord (required)
-- STT  (required)
-- TTS  (required)
-- Audio Transformers  (optional, None by default)
-- Dialog Transformers  (optional, None by default)
-- TTS Transformers  (optional, None by default)
-- PHAL  (optional, None by default)
+- [Microphone](https://openvoiceos.github.io/ovos-technical-manual/mic_plugins/) (required)
+- [VAD](https://openvoiceos.github.io/ovos-technical-manual/vad_plugins/) (required)
+- [WakeWord](https://openvoiceos.github.io/ovos-technical-manual/ww_plugins/) (required)
+- [STT](https://openvoiceos.github.io/ovos-technical-manual/stt_plugins/) (required)
+- [TTS](https://openvoiceos.github.io/ovos-technical-manual/tts_plugins/) (required)
+- [Media Playback Plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) (optional)
+- [OCP Plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) (optional)
+- [Audio Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) (optional)
+- [Dialog Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) (optional)
+- [TTS Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) (optional)
+- [PHAL](https://openvoiceos.github.io/ovos-technical-manual/PHAL/) (optional)
