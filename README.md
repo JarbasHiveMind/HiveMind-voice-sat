@@ -4,6 +4,8 @@ OpenVoiceOS Satellite, connect to [HiveMind](https://github.com/JarbasHiveMind/H
 
 ![](./voice_terminal.png)
 
+> NOTE: if you can't run TTS and STT locally, use [HiveMind-voice-relay](https://github.com/JarbasHiveMind/HiveMind-voice-relay) instead
+
 ## Install
 
 Install dependencies (if needed)
