@@ -8,16 +8,10 @@ OpenVoiceOS Satellite, connect to [HiveMind](https://github.com/JarbasHiveMind/H
 
 ## Install
 
-Install dependencies (if needed)
+Install with pip
 
 ```bash
-sudo apt-get install -y libpulse-dev libasound2-dev
-```
-
-Install with pip (hivemind pypi version is VERY outdated)
-
-```bash
-$ pip install git+https://github.com/JarbasHiveMind/HiveMind-voice-sat
+$ pip install HiveMind-voice-sat
 ```
 
 ## Usage
@@ -51,6 +45,7 @@ Supported plugins:
 | WakeWord | Detects wake words for interaction | Yes* | [WakeWord](https://openvoiceos.github.io/ovos-technical-manual/ww_plugins/) |
 | STT | speech-to-text (STT)| Yes | [STT](https://openvoiceos.github.io/ovos-technical-manual/stt_plugins/) |
 | TTS | text-to-speech (TTS) | Yes | [TTS](https://openvoiceos.github.io/ovos-technical-manual/tts_plugins) |
+| G2P | grapheme-to-phoneme (G2P), used to simulate mouth movements  | No | [G2P](https://openvoiceos.github.io/ovos-technical-manual/g2p_plugins) |
 | Media Playback Plugins | Enables media playback (e.g., "play Metallica") | No | [Media Playback Plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) |
 | OCP Plugins | Provides playback support for URLs (e.g., YouTube) | No | [OCP Plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) |
 | Audio Transformers | Processes audio before speech-to-text (STT) | No | [Audio Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
