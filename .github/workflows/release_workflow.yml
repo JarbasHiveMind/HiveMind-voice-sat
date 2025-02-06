@@ -30,7 +30,7 @@ jobs:
         with:
           homeserver: 'matrix.org'
           token: ${{ secrets.MATRIX_TOKEN }}
-          channel: '!WjxEKjjINpyBRPFgxl:krbel.duckdns.org'
+          channel: '!jImYhOcJWVpvCRsDjc:matrix.org'
           message: |
             new ${{ github.event.repository.name }} PR merged! https://github.com/${{ github.repository }}/pull/${{ github.event.number }}
 
