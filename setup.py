@@ -45,7 +45,11 @@ setup(
     name='HiveMind-voice-sat',
     version=get_version(),
     packages=['hivemind_voice_satellite'],
-    install_requires=required("requirements.txt"),
+    install_requires=required("requirements/requirements.txt"),
+    extras_require={
+        'mac': required('requirements/mac.txt'),
+        'linux': required('requirements/linux.txt'),
+    },
     include_package_data=True,
     url='https://github.com/OpenJarbas/HiveMind-voice-sat',
     license='MIT',
