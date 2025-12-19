@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.2a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.0.2a2) (2025-12-19)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.0.2a1...2.0.2a2)
+
+**Closed issues:**
+
+- Hivemind-client terminal can't fetch site\_id from \_identity.json [\#46](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/46)
+- Hivemind client \(or master\) can't handle ask\_yesno or get\_response\(\) methods [\#39](https://github.com/JarbasHiveMind/HiveMind-voice-sat/issues/39)
+
+**Merged pull requests:**
+
+- chore: Configure Renovate [\#50](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/50) ([renovate[bot]](https://github.com/apps/renovate))
+- feat: mac support [\#48](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/48) ([mikejgray](https://github.com/mikejgray))
+
 ## [2.0.2a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.0.2a1) (2024-12-21)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.0.1...2.0.2a1)
