@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.2a3](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.0.2a3) (2025-12-19)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.0.2a2...2.0.2a3)
+
+**Merged pull requests:**
+
+- chore\(deps\): update dependency python to 3.14 [\#51](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/51) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [2.0.2a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.0.2a2) (2025-12-19)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.0.2a1...2.0.2a2)
