@@ -3,7 +3,6 @@ from threading import Event
 import click
 from hivemind_bus_client import HiveMessageBusClient
 from hivemind_bus_client.identity import NodeIdentity
-from hivemind_ggwave import GGWaveSlave
 from ovos_audio.service import PlaybackService
 from ovos_utils import wait_for_exit_signal
 from ovos_utils.log import init_service_logger, LOG
@@ -31,7 +30,7 @@ def connect(host, key, password, port, selfsigned, siteid):
     if not password:
         LOG.info("starting hivemind-ggwave, waiting for audio password")
         try:
-
+            from hivemind_ggwave import GGWaveSlave
             ggwave = GGWaveSlave(key=key)  # reuse existing key
 
             ready = Event()

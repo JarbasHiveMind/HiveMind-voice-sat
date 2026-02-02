@@ -6,4 +6,3 @@ ovos-stt-plugin-server
 ovos-tts-plugin-server
 ovos-ww-plugin-vosk
 click
-hivemind-ggwave

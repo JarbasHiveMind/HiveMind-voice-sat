@@ -49,6 +49,7 @@ setup(
     extras_require={
         'mac': required('requirements/mac.txt'),
         'linux': required('requirements/linux.txt'),
+        'ggwave': ["hivemind-ggwave"],
     },
     include_package_data=True,
     url='https://github.com/OpenJarbas/HiveMind-voice-sat',
