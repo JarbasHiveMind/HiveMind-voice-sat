@@ -1,4 +1,4 @@
-hivemind_bus_client>=0.0.4a10
+hivemind_bus_client>=0.6.0a1
 ovos-audio
 ovos-dinkum-listener>=0.0.3
 ovos-vad-plugin-silero
