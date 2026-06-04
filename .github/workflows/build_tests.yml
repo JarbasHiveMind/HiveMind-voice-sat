@@ -10,5 +10,6 @@ jobs:
     uses: OpenVoiceOS/gh-automations/.github/workflows/build-tests.yml@dev
     with:
       python_versions: '["3.10", "3.11", "3.12", "3.13"]'
-      pre_install_pip: '"hivescope @ git+https://github.com/JarbasHiveMind/hivescope@fix/acl-resolve-user"'
+      pre_install_pip: '"hivescope==0.2.2a1" "hivemind-plugin-manager==0.6.0a1" "hivemind-ovos-agent-plugin==0.2.0a1" "hivemind-core @ git+https://github.com/JarbasHiveMind/HiveMind-core@feat/policy-chain-runner"'
+      # drop hivemind-core git pin once HiveMind-core#89 releases as an alpha
       test_path: 'tests/'
