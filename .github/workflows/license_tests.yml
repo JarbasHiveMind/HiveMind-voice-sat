@@ -1,35 +1,10 @@
-name: Run License Tests
+name: License Check
+
 on:
-  push:
+  pull_request:
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
-  license_tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.14
-      - name: Install Build Tools
-        run: |
-          python -m pip install build wheel
-      - name: Install System Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt install python3-dev swig libssl-dev
-      - name: Install core repo
-        run: |
-          pip install .
-      - name: Install licheck
-        run: |
-          pip install git+https://github.com/NeonJarbas/lichecker
-      - name: Install test dependencies
-        run: |
-          pip install pytest pytest-timeout pytest-cov
-      - name: Test Licenses
-        run: |
-          pytest test/license_tests.py
+  license_check:
+    uses: OpenVoiceOS/gh-automations/.github/workflows/license-check.yml@dev
