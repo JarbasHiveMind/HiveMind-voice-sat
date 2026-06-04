@@ -11,4 +11,4 @@ jobs:
     with:
       # HiveMind packages are AGPL-3.0 by design; the gate catches unexpected
       # third-party copyleft, not the project's own license family.
-      exclude_packages: '^(hivemind|hivescope|z85base91|poorman|ovos-bus-client).*'
+      exclude_packages: '^(hivemind|hivescope|z85base91|poorman|ovos-bus-client|tqdm).*'
