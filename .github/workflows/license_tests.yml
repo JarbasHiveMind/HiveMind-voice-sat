@@ -8,3 +8,8 @@ on:
 jobs:
   license_check:
     uses: OpenVoiceOS/gh-automations/.github/workflows/license-check.yml@dev
+    with:
+      # tqdm is dual-licensed MPL-2.0 AND MIT (file-level copyleft, safe as a
+      # library); the dual-license string is not matched by the default MPL
+      # exclude, so exclude the package directly.
+      exclude_packages: '^(tqdm).*'
