@@ -49,6 +49,12 @@ setup(
     extras_require={
         'mac': required('requirements/mac.txt'),
         'linux': required('requirements/linux.txt'),
+        'dev': [
+            # Pin to fix/acl-resolve-user branch until that branch merges into
+            # a released hivescope; revert to `hivescope` (no URL) afterwards.
+            "hivescope @ git+https://github.com/JarbasHiveMind/hivescope@fix/acl-resolve-user",
+            "pytest",
+        ],
     },
     include_package_data=True,
     url='https://github.com/OpenJarbas/HiveMind-voice-sat',

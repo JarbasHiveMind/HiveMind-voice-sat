@@ -1,0 +1,16 @@
+name: Code Coverage
+
+on:
+  pull_request:
+    branches: [dev]
+  workflow_dispatch:
+
+jobs:
+  coverage:
+    uses: OpenVoiceOS/gh-automations/.github/workflows/coverage.yml@dev
+    with:
+      python_version: '3.11'
+      coverage_source: 'hivemind_voice_satellite'
+      test_path: 'tests/'
+      pre_install_pip: '"hivescope @ git+https://github.com/JarbasHiveMind/hivescope@fix/acl-resolve-user"'
+      min_coverage: 0
