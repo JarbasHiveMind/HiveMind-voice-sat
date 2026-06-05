@@ -2,59 +2,112 @@
 
 # HiveMind Voice Satellite
 
-OpenVoiceOS Satellite, connect to [HiveMind](https://github.com/JarbasHiveMind/HiveMind-core)
+The **full-stack** OVOS voice satellite: microphone, VAD, wakeword, STT, and TTS all run **on this device**. Spoken input is transcribed locally; only the resulting text utterance is sent to the hive. Responses arrive as text and are spoken locally. Requires the most compute of the satellite family, but puts the least load on the server and works fully offline once set up.
 
-![](./voice_terminal.png)
+## Satellite spectrum
 
-> NOTE: if you can't run TTS and STT locally, use [HiveMind-voice-relay](https://github.com/JarbasHiveMind/HiveMind-voice-relay) instead
+| Satellite | Mic | VAD | Wakeword | STT | TTS | What crosses the wire |
+|-----------|:---:|:---:|:--------:|:---:|:---:|-----------------------|
+| [HiveMind-cli](https://github.com/JarbasHiveMind/HiveMind-cli) | — | — | — | — | — | text in / text out |
+| [hivemind-mic-satellite](https://github.com/JarbasHiveMind/hivemind-mic-satellite) | local | local | — | **remote** | **remote** | raw audio stream |
+| [HiveMind-voice-relay](https://github.com/JarbasHiveMind/HiveMind-voice-relay) | local | local | local | **remote** | **remote** | audio after wakeword |
+| **HiveMind-voice-sat** ← you are here | local | local | local | **local** | **local** | text utterances only |
+
+Use voice-sat when the device has CPU/GPU to spare, when bandwidth is limited, or when audio privacy matters.
 
 ## Install
 
-Install with pip
-
 ```bash
-$ pip install HiveMind-voice-sat
+pip install HiveMind-voice-sat
+# Linux — ALSA/SoundDevice microphone support
+pip install HiveMind-voice-sat[linux]
+# macOS
+pip install HiveMind-voice-sat[mac]
 ```
 
-## Usage
+## 60-second quickstart
+
+**1. Add a client on the hive** (run this on the server):
 
 ```bash
+hivemind-core add-client --name my-voice-sat
+# outputs: Access Key and Password — copy them
+```
+
+**2. Run the satellite** (on this device):
+
+```bash
+hivemind-voice-sat --host <hive-host> --key <access-key> --password <password>
+```
+
+Say your wakeword; the satellite transcribes locally and sends the utterance to the hive.
+
+## Minimal configuration
+
+The satellite reads `~/.config/mycroft/mycroft.conf` (standard OVOS config).
+Override STT, TTS, VAD, and wakeword plugins there:
+
+```json
+{
+  "listener": {
+    "VAD": {
+      "module": "ovos-vad-plugin-silero"
+    },
+    "wake_word": "hey_mycroft",
+    "hey_mycroft": {
+      "module": "ovos-ww-plugin-vosk"
+    }
+  },
+  "stt": {
+    "module": "ovos-stt-plugin-server",
+    "ovos-stt-plugin-server": { "url": "https://stt.openvoiceos.org/stt" }
+  },
+  "tts": {
+    "module": "ovos-tts-plugin-server",
+    "ovos-tts-plugin-server": { "host": "https://tts.openvoiceos.org" }
+  }
+}
+```
+
+All plugin slots are swappable via [ovos-plugin-manager](https://github.com/OpenVoiceOS/ovos-plugin-manager). See [docs/configuration.md](docs/configuration.md) for the full reference.
+
+## CLI reference
+
+```
 Usage: hivemind-voice-sat [OPTIONS]
 
   connect to HiveMind
 
 Options:
-  --host TEXT      hivemind host
-  --key TEXT       Access Key
-  --password TEXT  Password for key derivation
-  --port INTEGER   HiveMind port number
-  --selfsigned     accept self signed certificates
-  --help           Show this message and exit.
-
+  --host TEXT       hivemind host (ws:// or wss://)
+  --key TEXT        Access Key
+  --password TEXT   Password for key derivation
+  --port INTEGER    HiveMind port number (default 5678)
+  --selfsigned      accept self-signed certificates
+  --siteid TEXT     location identifier for message.context
+  --help            Show this message and exit.
 ```
 
+## Documentation
 
-## Configuration
+Full zero-to-hero docs live in **[docs/](docs/index.md)**:
 
-Voice satellite is built on top of [ovos-listener](https://openvoiceos.github.io/ovos-technical-manual/speech_service/) and [ovos-audio](https://openvoiceos.github.io/ovos-technical-manual/audio_service/), it uses the same OpenVoiceOS configuration `~/.config/mycroft/mycroft.conf`
+- [Overview & architecture spectrum](docs/index.md)
+- [Getting started](docs/getting-started.md)
+- [Configuration reference](docs/configuration.md)
+- [Architecture (advanced)](docs/architecture.md)
+- [Deployment (systemd / Raspberry Pi)](docs/deployment.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
-Supported plugins:
+## Related
 
-| Plugin Type | Description | Required | Link |
-|-------------|-------------|----------|------|
-| Microphone | Captures voice input | Yes | [Microphone](https://openvoiceos.github.io/ovos-technical-manual/mic_plugins/) |
-| VAD | Voice Activity Detection | Yes | [VAD](https://openvoiceos.github.io/ovos-technical-manual/vad_plugins/) |
-| WakeWord | Detects wake words for interaction | Yes* | [WakeWord](https://openvoiceos.github.io/ovos-technical-manual/ww_plugins/) |
-| STT | speech-to-text (STT)| Yes | [STT](https://openvoiceos.github.io/ovos-technical-manual/stt_plugins/) |
-| TTS | text-to-speech (TTS) | Yes | [TTS](https://openvoiceos.github.io/ovos-technical-manual/tts_plugins) |
-| G2P | grapheme-to-phoneme (G2P), used to simulate mouth movements  | No | [G2P](https://openvoiceos.github.io/ovos-technical-manual/g2p_plugins) |
-| Media Playback Plugins | Enables media playback (e.g., "play Metallica") | No | [Media Playback Plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) |
-| OCP Plugins | Provides playback support for URLs (e.g., YouTube) | No | [OCP Plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) |
-| Audio Transformers | Processes audio before speech-to-text (STT) | No | [Audio Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
-| Dialog Transformers | Processes text before text-to-speech (TTS) | No | [Dialog Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
-| TTS Transformers | Processes audio after text-to-speech (TTS) | No | [TTS Transformers](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
-| PHAL | Provides platform-specific support (e.g., Mark 1) | No | [PHAL](https://openvoiceos.github.io/ovos-technical-manual/PHAL/) |
+| Project | Role |
+|---------|------|
+| [HiveMind-core](https://github.com/JarbasHiveMind/HiveMind-core) | The hive — install on the server |
+| [HiveMind-cli](https://github.com/JarbasHiveMind/HiveMind-cli) | Text-only client |
+| [hivemind-mic-satellite](https://github.com/JarbasHiveMind/hivemind-mic-satellite) | Thinnest audio satellite |
+| [HiveMind-voice-relay](https://github.com/JarbasHiveMind/HiveMind-voice-relay) | Mid-weight: local wakeword, remote STT/TTS |
 
-* can be skipped with [continuous listening mode](https://openvoiceos.github.io/ovos-technical-manual/speech_service/#modes-of-operation)
+## License
 
-
+Apache-2.0 — see [LICENSE](LICENSE).
