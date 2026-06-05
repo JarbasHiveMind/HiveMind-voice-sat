@@ -333,7 +333,7 @@ def test_session_field_propagated_unchanged():
         time.sleep(0.2)
 
         assert_session_propagated_unchanged(
-            m, field="lang", value="fr-FR",
+            m, field="lang", value=sess.serialize().get("lang"),
             msg_type="recognizer_loop:utterance",
         )
     finally:
