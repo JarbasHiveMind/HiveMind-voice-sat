@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "HiveMind-voice-sat"
+description = "Hivemind Voice Satellite"
+readme = "README.md"
+authors = [{ name = "jarbasAI", email = "jarbasai@mailfence.com" }]
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dynamic = ["version", "dependencies", "optional-dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/JarbasHiveMind/HiveMind-voice-sat"
+
+[project.scripts]
+hivemind-voice-sat = "hivemind_voice_satellite.__main__:connect"
+
+[tool.setuptools]
+packages = ["hivemind_voice_satellite"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = { attr = "hivemind_voice_satellite.version.__version__" }
+dependencies = { file = ["requirements/requirements.txt"] }
+
+[tool.setuptools.dynamic.optional-dependencies]
+mac = { file = ["requirements/mac.txt"] }
+linux = { file = ["requirements/linux.txt"] }
+dev = { file = ["requirements/dev.txt"] }
