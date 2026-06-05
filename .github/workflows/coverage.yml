@@ -1,15 +1,17 @@
-name: Build Tests
+name: Code Coverage
 
 on:
   pull_request:
-    branches: [dev, master]
+    branches: [dev]
   workflow_dispatch:
 
 jobs:
-  build:
-    uses: OpenVoiceOS/gh-automations/.github/workflows/build-tests.yml@dev
+  coverage:
+    uses: OpenVoiceOS/gh-automations/.github/workflows/coverage.yml@dev
     with:
-      python_versions: '["3.10", "3.11", "3.12", "3.13"]'
+      python_version: '3.11'
+      coverage_source: 'hivemind_voice_satellite'
+      test_path: 'tests/'
       pre_install_pip: '"hivescope==0.3.0a1" "hivemind-plugin-manager==0.6.0a1" "hivemind-ovos-agent-plugin==0.2.0a1" "hivemind-core==4.3.0a2"'
       # drop hivemind-core git pin once HiveMind-core#89 releases as an alpha
-      test_path: 'tests/'
+      min_coverage: 0
