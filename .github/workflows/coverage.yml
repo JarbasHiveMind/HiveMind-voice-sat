@@ -12,6 +12,6 @@ jobs:
       python_version: '3.11'
       coverage_source: 'hivemind_voice_satellite'
       test_path: 'tests/'
-      pre_install_pip: '"hivescope==0.3.0a1" "hivemind-plugin-manager==0.6.0a1" "hivemind-ovos-agent-plugin==0.2.0a1" "hivemind-core @ git+https://github.com/JarbasHiveMind/HiveMind-core@feat/policy-chain-runner"'
+      pre_install_pip: '"hivescope==0.3.0a1" "hivemind-plugin-manager==0.6.0a1" "hivemind-ovos-agent-plugin==0.2.0a1" "hivemind-core==4.3.0a2"'
       # drop hivemind-core git pin once HiveMind-core#89 releases as an alpha
       min_coverage: 0
