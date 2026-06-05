@@ -50,7 +50,7 @@ setup(
         'mac': required('requirements/mac.txt'),
         'linux': required('requirements/linux.txt'),
         'dev': [
-            "hivescope==0.2.2a1",
+            "hivescope==0.3.0a1",
             "pytest",
         ],
     },
