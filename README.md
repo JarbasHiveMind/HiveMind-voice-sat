@@ -98,6 +98,22 @@ Full zero-to-hero docs live in **[docs/](docs/index.md)**:
 - [Architecture (advanced)](docs/architecture.md)
 - [Deployment (systemd / Raspberry Pi)](docs/deployment.md)
 - [Troubleshooting](docs/troubleshooting.md)
+- [Testing & development](docs/testing.md)
+
+## Development
+
+```bash
+git clone https://github.com/JarbasHiveMind/HiveMind-voice-sat
+cd HiveMind-voice-sat
+pip install -e ".[test]"   # lightweight smoke deps
+pytest tests/test_smoke.py
+pip install -e ".[e2e]"    # full hivemind-core + 2.x stack for end-to-end
+pytest tests/e2e/
+```
+
+`pyproject.toml` is the single packaging source of truth. The dependency stack
+now runs on `ovos-bus-client` **2.x** (see [docs/architecture.md](docs/architecture.md#dependency-stack-the-bus-client-2x-situation));
+prerelease deps are pinned as minimum versions so `pip` resolves them without `--pre`.
 
 ## Related
 
