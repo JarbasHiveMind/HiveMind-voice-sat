@@ -32,3 +32,4 @@ Understanding where each satellite sits on the local-vs-remote processing axis h
 | [Architecture](architecture.md) | On-device pipeline, wire protocol, trade-offs |
 | [Deployment](deployment.md) | systemd service, Raspberry Pi, audio hardware |
 | [Troubleshooting](troubleshooting.md) | Common failure modes and fixes |
+| [Testing](testing.md) | Test tiers, the bus-client 2.x stack, running e2e |

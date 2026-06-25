@@ -12,7 +12,8 @@ jobs:
       python_version: '3.11'
       coverage_source: 'hivemind_voice_satellite'
       test_path: 'tests/'
-      # version policy is in pyproject (the `dev` extra <- requirements/dev.txt);
-      # no pre_install pins here.
-      test_extras: 'dev'
+      # The `e2e` extra pulls hivescope + the 2.x stack so the full suite
+      # (smoke + e2e) runs under coverage. Prerelease deps are pinned as
+      # minimums in pyproject; no pre_install pins here.
+      test_extras: 'e2e'
       min_coverage: 0

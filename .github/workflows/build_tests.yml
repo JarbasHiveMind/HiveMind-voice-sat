@@ -10,7 +10,10 @@ jobs:
     uses: OpenVoiceOS/gh-automations/.github/workflows/build-tests.yml@dev
     with:
       python_versions: '["3.10", "3.11", "3.12", "3.13"]'
-      # version policy is in pyproject (the `dev` extra <- requirements/dev.txt);
-      # no pre_install pins here.
-      install_extras: 'dev'
-      test_path: 'tests/'
+      # Network-free smoke tests across the full matrix. The HiveMind-side e2e
+      # (tests/e2e/) boots a real hivemind-core hub via hivescope and runs in a
+      # dedicated job (e2e_tests.yml) so it doesn't drag the whole alpha stack
+      # into every matrix cell. Version policy lives in pyproject (the `test`
+      # extra); no pre_install pins here — prerelease deps are pinned as minimums.
+      install_extras: 'test'
+      test_path: 'tests/test_smoke.py'
