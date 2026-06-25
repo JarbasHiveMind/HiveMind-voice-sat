@@ -6,7 +6,7 @@
 # resolves on 1.x via hivemind-bus-client 0.9.1a1. Bump once ovos-audio /
 # ovos-dinkum-listener support ovos-bus-client 2.x.
 pytest
-hivescope==0.5.0a2
+hivescope==0.5.2a1
 hivemind-core==4.3.0a2
 hivemind-ovos-agent-plugin==0.2.0a1
 hivemind-plugin-manager==0.6.0a1
