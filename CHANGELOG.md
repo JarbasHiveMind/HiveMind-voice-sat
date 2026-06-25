@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.0a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.1.0a2) (2026-06-25)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.1.0a1...2.1.0a2)
+
+**Merged pull requests:**
+
+- test\(e2e\): refresh hivescope pin 0.3.0a1 → 0.5.0a2 \(stays on bus-client 1.x\) [\#64](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/64) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [2.1.0a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.1.0a1) (2026-06-05)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.0.2a5...2.1.0a1)
