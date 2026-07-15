@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a2) (2026-07-15)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a1...2.2.0a2)
+
+**Merged pull requests:**
+
+- docs: transformer pipelines in split deployments [\#68](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/68) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [2.2.0a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a1) (2026-06-25)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.1.0a2...2.2.0a1)
