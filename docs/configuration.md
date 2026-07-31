@@ -2,7 +2,7 @@
 
 ## CLI flags
 
-All flags are optional; missing values fall back to the stored identity (see below).
+All flags are optional. Missing values fall back to the stored identity (see below).
 
 ```
 Usage: hivemind-voice-sat [OPTIONS]
@@ -103,32 +103,32 @@ Install the plugin with `pip`, then set `module` in the config.
 | Wakeword | `listener.hey_mycroft.module` | Yes* | `ovos-ww-plugin-vosk` | [WW plugins](https://openvoiceos.github.io/ovos-technical-manual/ww_plugins/) |
 | STT | `stt.module` | Yes | `ovos-stt-plugin-server` | [STT plugins](https://openvoiceos.github.io/ovos-technical-manual/stt_plugins/) |
 | TTS | `tts.module` | Yes | `ovos-tts-plugin-server` | [TTS plugins](https://openvoiceos.github.io/ovos-technical-manual/tts_plugins) |
-| G2P | `tts.g2p_module` | No | — | [G2P plugins](https://openvoiceos.github.io/ovos-technical-manual/g2p_plugins) |
-| Audio transformers | `audio_transformers` (legacy: `listener.audio_transformers`) | No | — | [Transformer plugins](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
-| Dialog transformers | `dialog_transformers` | No | — | [Transformer plugins](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
-| TTS transformers | `tts_transformers` | No | — | [Transformer plugins](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
-| Media playback | `Audio.backends` | No | — | [Media playback plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) |
-| OCP | `ocp` | No | — | [OCP plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) |
-| PHAL | — | No | — | [PHAL](https://openvoiceos.github.io/ovos-technical-manual/PHAL/) |
+| G2P | `tts.g2p_module` | No | n/a | [G2P plugins](https://openvoiceos.github.io/ovos-technical-manual/g2p_plugins) |
+| Audio transformers | `audio_transformers` (legacy: `listener.audio_transformers`) | No | n/a | [Transformer plugins](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
+| Dialog transformers | `dialog_transformers` | No | n/a | [Transformer plugins](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
+| TTS transformers | `tts_transformers` | No | n/a | [Transformer plugins](https://openvoiceos.github.io/ovos-technical-manual/transformer_plugins/) |
+| Media playback | `Audio.backends` | No | n/a | [Media playback plugins](https://openvoiceos.github.io/ovos-technical-manual/media_plugins/) |
+| OCP | `ocp` | No | n/a | [OCP plugins](https://openvoiceos.github.io/ovos-technical-manual/ocp_plugins/) |
+| PHAL | n/a | No | n/a | [PHAL](https://openvoiceos.github.io/ovos-technical-manual/PHAL/) |
 
 \* Wakeword can be skipped by enabling [continuous listening mode](https://openvoiceos.github.io/ovos-technical-manual/speech_service/#modes-of-operation).
 
 ### Transformer pipelines in a split deployment
 
-The satellite runs the full on-device pipeline stack: **audio transformers**
-(listener, pre-STT), **dialog transformers** and **tts transformers**
-(playback). **Utterance/metadata/intent transformers do not run here** —
-they run server-side, in ovos-core behind the HiveMind server (and
-hivemind-core can run its own utterance/metadata/dialog chains for the
-mesh).
+The satellite runs the full on-device pipeline stack: audio transformers
+(listener, pre-STT), dialog transformers, and TTS transformers (playback).
+Utterance, metadata, and intent transformers do not run here. They run
+server-side, in ovos-core behind the HiveMind server. hivemind-core can also
+run its own utterance, metadata, and dialog chains for the mesh.
 
-Enable each plugin in exactly one place: per-device effects (denoise,
-speaker-specific audio tweaks) on the satellite; fleet-wide effects
-(persona/tone rewrites, shared corrections, policy stop-words) on the
-server. If TTS audio arrives saying different text than the skill produced,
-a server-side dialog transformer is rewriting it — deliberate when
-centralizing a persona, worth checking if unexpected. Full contract:
-[ovos-plugin-manager transformer docs](https://github.com/OpenVoiceOS/ovos-plugin-manager/blob/dev/docs/transformers.md).
+Enable each plugin in exactly one place. Put per-device effects (denoise,
+speaker-specific audio tweaks) on the satellite. Put fleet-wide effects
+(persona or tone rewrites, shared corrections, policy stop-words) on the
+server. If TTS audio says different text than the skill produced, a
+server-side dialog transformer is rewriting it. This is deliberate when
+centralizing a persona, but check it if it is unexpected. See the
+[ovos-plugin-manager transformer docs](https://github.com/OpenVoiceOS/ovos-plugin-manager/blob/dev/docs/transformers.md)
+for the full contract.
 
 ### Fully local example (no cloud calls)
 
@@ -170,4 +170,7 @@ centralizing a persona, worth checking if unexpected. Full contract:
 
 ## PHAL
 
-If `ovos-PHAL` is installed, the satellite starts it automatically alongside the voice loop. PHAL plugins provide platform-specific integrations (hardware buttons, LEDs, Mark 1 faceplate, etc.) and are configured under `PHAL` in `mycroft.conf`.
+If `ovos-PHAL` is installed, the satellite starts it automatically alongside the voice loop. PHAL plugins add platform-specific integrations (hardware buttons, LEDs, Mark 1 faceplate, and similar). Configure them under `PHAL` in `mycroft.conf`.
+
+---
+[← Getting started](getting-started.md) · [Home](index.md) · [Architecture →](architecture.md)

@@ -61,7 +61,7 @@ Access Key : abc123...
 Password   : def456...
 ```
 
-These two values identify this satellite to the hive. Keep them; they are not stored on the server after display (though you can re-list them with `hivemind-core list-clients`).
+These two values identify this satellite to the hive. Keep them. The server does not store them after display, but you can re-list them with `hivemind-core list-clients`.
 
 ---
 
@@ -77,7 +77,7 @@ hivemind-voice-sat \
   --port 5678
 ```
 
-Or store the identity once so you do not have to repeat flags:
+Or store the identity once so you do not repeat the flags:
 
 ```bash
 hivemind-client set-identity \
@@ -88,7 +88,7 @@ hivemind-client set-identity \
 hivemind-voice-sat   # reads ~/.config/mycroft/identity2.json
 ```
 
-If neither credentials nor an identity file are present, the satellite falls back to **GGWave** — it listens for an audio-encoded identity broadcast from the hive (see `hivemind-ggwave`).
+If neither credentials nor an identity file are present, the satellite falls back to GGWave. It listens for an audio-encoded identity broadcast from the hive (see `hivemind-ggwave`).
 
 ---
 
@@ -113,3 +113,6 @@ If you see connection errors, consult [Troubleshooting](troubleshooting.md).
 - Swap STT/TTS/wakeword plugins: [Configuration](configuration.md)
 - Run as a system service: [Deployment](deployment.md)
 - Understand the data flow: [Architecture](architecture.md)
+
+---
+[Home](index.md) · [Configuration →](configuration.md)

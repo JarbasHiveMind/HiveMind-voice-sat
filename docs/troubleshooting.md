@@ -21,7 +21,7 @@ Or pass `--host`, `--key`, and `--password` directly on the command line.
 
 ### `Invalid host, please specify a protocol`
 
-The host string did not start with `ws://` or `wss://`. The satellite auto-prepends `ws://` if no protocol is detected, but check the value you passed — if it contains `https://` or a stray character the auto-fix does not apply.
+The host string did not start with `ws://` or `wss://`. The satellite auto-prepends `ws://` when it detects no protocol. Check the value you passed. If it contains `https://` or a stray character, the auto-fix does not apply.
 
 Fix: use `--host ws://192.168.1.10:5678` or `--host wss://myhive.example.com:5678`.
 
@@ -41,9 +41,9 @@ For a CA-signed certificate that still fails: verify the system CA bundle is up 
 
 ### Connects then immediately disconnects
 
-- Wrong access key or password — regenerate with `hivemind-core add-client` on the hive.
-- The client entry was deleted on the hive — re-add it.
-- Firewall blocking port 5678 — check both ends.
+- Wrong access key or password. Regenerate with `hivemind-core add-client` on the hive.
+- The client entry was deleted on the hive. Re-add it.
+- A firewall blocks port 5678. Check both ends.
 
 ---
 
@@ -59,7 +59,7 @@ For a CA-signed certificate that still fails: verify the system CA bundle is up 
    ```bash
    arecord -d 3 -f cd /tmp/test.wav && aplay /tmp/test.wav
    ```
-3. Check the `microphone.module` in `mycroft.conf` — if the plugin is missing, install it:
+3. Check the `microphone.module` in `mycroft.conf`. If the plugin is missing, install it:
    ```bash
    pip install ovos-microphone-plugin-alsa        # Linux ALSA
    pip install ovos-microphone-plugin-sounddevice  # cross-platform
@@ -80,7 +80,7 @@ For a CA-signed certificate that still fails: verify the system CA bundle is up 
    pip show ovos-ww-plugin-vosk
    ```
 2. Check the configured wakeword phrase matches what you are saying. Default is *Hey Mycroft*.
-3. Increase microphone gain or move closer; VAD may be clipping quiet speech.
+3. Increase microphone gain or move closer. VAD may be clipping quiet speech.
 4. Try disabling the wakeword with continuous listening to isolate whether the issue is wakeword-specific:
    ```json
    { "listener": { "continuous_listen": true } }
@@ -143,7 +143,7 @@ Plugins that download models on first use (Vosk, Faster-Whisper, Piper) write to
 df -h ~/.local
 ```
 
-If the download fails midway, delete the partial model directory and restart. For offline environments, pre-download models and configure the plugin to use the local path — consult the individual plugin's README.
+If the download fails midway, delete the partial model directory and restart. For offline environments, pre-download the models and configure the plugin to use the local path. Consult the individual plugin's README.
 
 ---
 
@@ -160,3 +160,6 @@ Log output goes to the terminal. When running under systemd:
 ```bash
 sudo journalctl -u hivemind-voice-sat -f
 ```
+
+---
+[← Deployment](deployment.md) · [Home](index.md) · [Testing →](testing.md)

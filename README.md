@@ -2,24 +2,24 @@
 
 # HiveMind Voice Satellite
 
-The **full-stack** OVOS voice satellite: microphone, VAD, wakeword, STT, and TTS all run **on this device**. Spoken input is transcribed locally; only the resulting text utterance is sent to the hive. Responses arrive as text and are spoken locally. Requires the most compute of the satellite family, but puts the least load on the server and works fully offline once set up.
+HiveMind Voice Satellite is a full-stack OVOS voice satellite. Microphone capture, VAD, wakeword detection, STT, and TTS all run on this device. The satellite transcribes speech locally and sends only the resulting text utterance to the hive. Responses arrive as text and the satellite speaks them locally. This satellite needs the most compute of the satellite family. It puts the least load on the server and works fully offline once set up.
 
 ## Satellite spectrum
 
 | Satellite | Mic | VAD | Wakeword | STT | TTS | What crosses the wire |
 |-----------|:---:|:---:|:--------:|:---:|:---:|-----------------------|
-| [HiveMind-cli](https://github.com/JarbasHiveMind/HiveMind-cli) | — | — | — | — | — | text in / text out |
-| [hivemind-mic-satellite](https://github.com/JarbasHiveMind/hivemind-mic-satellite) | local | local | — | **remote** | **remote** | raw audio stream |
+| [HiveMind-cli](https://github.com/JarbasHiveMind/HiveMind-cli) | n/a | n/a | n/a | n/a | n/a | text in / text out |
+| [hivemind-mic-satellite](https://github.com/JarbasHiveMind/hivemind-mic-satellite) | local | local | n/a | **remote** | **remote** | raw audio stream |
 | [HiveMind-voice-relay](https://github.com/JarbasHiveMind/HiveMind-voice-relay) | local | local | local | **remote** | **remote** | audio after wakeword |
 | **HiveMind-voice-sat** ← you are here | local | local | local | **local** | **local** | text utterances only |
 
-Use voice-sat when the device has CPU/GPU to spare, when bandwidth is limited, or when audio privacy matters.
+Use voice-sat when the device has CPU/GPU to spare, bandwidth is limited, or audio privacy matters.
 
 ## Install
 
 ```bash
 pip install HiveMind-voice-sat
-# Linux — ALSA/SoundDevice microphone support
+# Linux: ALSA or SoundDevice microphone support
 pip install HiveMind-voice-sat[linux]
 # macOS
 pip install HiveMind-voice-sat[mac]
@@ -31,7 +31,7 @@ pip install HiveMind-voice-sat[mac]
 
 ```bash
 hivemind-core add-client --name my-voice-sat
-# outputs: Access Key and Password — copy them
+# outputs: Access Key and Password, copy them
 ```
 
 **2. Run the satellite** (on this device):
@@ -40,7 +40,7 @@ hivemind-core add-client --name my-voice-sat
 hivemind-voice-sat --host <hive-host> --key <access-key> --password <password>
 ```
 
-Say your wakeword; the satellite transcribes locally and sends the utterance to the hive.
+Say your wakeword. The satellite transcribes locally and sends the utterance to the hive.
 
 ## Minimal configuration
 
@@ -75,9 +75,7 @@ All plugin slots are swappable via [ovos-plugin-manager](https://github.com/Open
 
 ```
 Usage: hivemind-voice-sat [OPTIONS]
-
   connect to HiveMind
-
 Options:
   --host TEXT       hivemind host (ws:// or wss://)
   --key TEXT        Access Key
@@ -96,6 +94,7 @@ Full zero-to-hero docs live in **[docs/](docs/index.md)**:
 - [Getting started](docs/getting-started.md)
 - [Configuration reference](docs/configuration.md)
 - [Architecture (advanced)](docs/architecture.md)
+
 - [Deployment (systemd / Raspberry Pi)](docs/deployment.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Testing & development](docs/testing.md)
@@ -112,18 +111,18 @@ pytest tests/e2e/
 ```
 
 `pyproject.toml` is the single packaging source of truth. The dependency stack
-now runs on `ovos-bus-client` **2.x** (see [docs/architecture.md](docs/architecture.md#dependency-stack-the-bus-client-2x-situation));
-prerelease deps are pinned as minimum versions so `pip` resolves them without `--pre`.
+now runs on `ovos-bus-client` **2.x** (see [docs/architecture.md](docs/architecture.md)).
+Prerelease dependencies are pinned as minimum versions, so `pip` resolves them without `--pre`.
 
 ## Related
 
 | Project | Role |
 |---------|------|
-| [HiveMind-core](https://github.com/JarbasHiveMind/HiveMind-core) | The hive — install on the server |
+| [HiveMind-core](https://github.com/JarbasHiveMind/HiveMind-core) | The hive, install it on the server |
 | [HiveMind-cli](https://github.com/JarbasHiveMind/HiveMind-cli) | Text-only client |
 | [hivemind-mic-satellite](https://github.com/JarbasHiveMind/hivemind-mic-satellite) | Thinnest audio satellite |
 | [HiveMind-voice-relay](https://github.com/JarbasHiveMind/HiveMind-voice-relay) | Mid-weight: local wakeword, remote STT/TTS |
 
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE).
