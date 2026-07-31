@@ -124,15 +124,15 @@ ctl.!default { type hw; card 1; }
 
 | Role | Plugin | Notes |
 |------|--------|-------|
-| VAD | `ovos-vad-plugin-silero` | Ships with voice-sat; fast on CPU |
-| Wakeword | `ovos-ww-plugin-vosk` | Ships with voice-sat; small model |
-| STT | `ovos-stt-plugin-faster-whisper` | `pip install ovos-stt-plugin-faster-whisper`; use `tiny` or `base` model on Pi 4 |
-| TTS | `ovos-tts-plugin-piper` | `pip install ovos-tts-plugin-piper`; fast neural TTS, no GPU needed |
+| VAD | `ovos-vad-plugin-silero` | Ships with voice-sat, fast on CPU |
+| Wakeword | `ovos-ww-plugin-vosk` | Ships with voice-sat, small model |
+| STT | `ovos-stt-plugin-faster-whisper` | `pip install ovos-stt-plugin-faster-whisper`, use `tiny` or `base` model on Pi 4 |
+| TTS | `ovos-tts-plugin-piper` | `pip install ovos-tts-plugin-piper`, fast neural TTS, no GPU needed |
 
 ### Reduce latency on Pi
 
 - Use a wired USB microphone rather than USB + sound card dongle.
-- Prefer `tiny` Whisper model for STT on Pi 4; upgrade to `small` on Pi 5.
+- Prefer the `tiny` Whisper model for STT on Pi 4. Upgrade to `small` on Pi 5.
 - Set `"continuous_listen": false` (default) so VAD + wakeword gate STT inference.
 
 ---
@@ -148,3 +148,6 @@ Exec=/home/pi/.venv/bin/hivemind-voice-sat
 Hidden=false
 X-GNOME-Autostart-enabled=true
 ```
+
+---
+[← Architecture](architecture.md) · [Home](index.md) · [Troubleshooting →](troubleshooting.md)

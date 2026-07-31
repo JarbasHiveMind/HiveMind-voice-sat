@@ -27,10 +27,10 @@ HiveMessageBusClient ──── WebSocket ──── HiveMind-core (hive)
  Audio output (ovos-audio / PlaybackService)
 ```
 
-Every stage runs **on this device**. The only data that crosses the network is:
+Every stage runs on this device. Only two kinds of data cross the network:
 
-- **Outbound:** a HiveMessage carrying the transcribed text utterance, wrapped in the standard HiveMind bus protocol, plus session metadata.
-- **Inbound:** HiveMessages carrying `speak` (TTS text) or media playback instructions, which are handled locally by `ovos-audio`.
+- Outbound: a HiveMessage carrying the transcribed text utterance, wrapped in the standard HiveMind bus protocol, plus session metadata.
+- Inbound: HiveMessages carrying `speak` (TTS text) or media playback instructions. `ovos-audio` handles these locally.
 
 ---
 
@@ -38,11 +38,11 @@ Every stage runs **on this device**. The only data that crosses the network is:
 
 ### `VoiceClient` (`service.py`)
 
-Subclasses `OVOSDinkumVoiceService` from `ovos-dinkum-listener` with one override: `_connect_to_bus()` is a no-op. Instead of opening a local MessageBus WebSocket, the service receives a `HiveMessageBusClient` directly. This makes the OVOS voice loop transparently route messages through the HiveMind connection rather than a local bus.
+`VoiceClient` subclasses `OVOSDinkumVoiceService` from `ovos-dinkum-listener` with one override: `_connect_to_bus()` is a no-op. Instead of opening a local MessageBus WebSocket, the service receives a `HiveMessageBusClient` directly. This routes the OVOS voice loop through the HiveMind connection instead of a local bus.
 
 ### `PlaybackService` (`ovos-audio`)
 
-Started alongside `VoiceClient`, also bound to the `HiveMessageBusClient`. Handles TTS playback and any media playback requests (OCP, audio backends) that the hive sends back. `validate_source=False` disables the local ACL check since all messages originate from the trusted hive connection.
+`PlaybackService` starts alongside `VoiceClient` and also binds to the `HiveMessageBusClient`. It handles TTS playback and any media playback requests (OCP, audio backends) that the hive sends back. `validate_source=False` disables the local ACL check because all messages come from the trusted hive connection.
 
 ### `HiveMessageBusClient`
 
@@ -64,8 +64,8 @@ HiveMind uses a WebSocket framing layer on top of the OVOS `Message` format. Eac
 Inbound messages follow the reverse path: a `speak` message from the hive arrives as a `HiveMessage`, the client unpacks it, and the local `PlaybackService` handles synthesis and audio output.
 
 Session identity (`NodeIdentity`) provides:
-- **Access key + password** — HMAC-based authentication, derived on connection.
-- **Site ID** — written into `message.context.site_id` so the hive can address replies back to this satellite specifically.
+- Access key and password: HMAC-based authentication, derived on connection.
+- Site ID: written into `message.context.site_id` so the hive can address replies back to this satellite specifically.
 
 ---
 
@@ -89,4 +89,7 @@ Thinner satellites are better when:
 - The device cannot support local STT/TTS model inference (RAM, CPU).
 - Centralized model management is preferred.
 - Low device cost matters more than bandwidth efficiency.
+
+---
+[← Configuration](configuration.md) · [Home](index.md) · [Deployment →](deployment.md)
 
