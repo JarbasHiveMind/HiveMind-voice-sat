@@ -85,7 +85,7 @@ hivemind-client set-identity \
   --key abc123... \
   --password def456...
 
-hivemind-voice-sat   # reads ~/.config/mycroft/identity2.json
+hivemind-voice-sat   # reads ~/.config/hivemind/_identity.json
 ```
 
 If neither credentials nor an identity file are present, the satellite falls back to GGWave. It listens for an audio-encoded identity broadcast from the hive (see `hivemind-ggwave`).
