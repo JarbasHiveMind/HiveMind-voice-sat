@@ -26,7 +26,7 @@ Options:
 ## Identity file
 
 When `--host`, `--key`, and `--password` are all omitted, the satellite reads
-`~/.config/mycroft/identity2.json` (the standard OVOS `NodeIdentity` file).
+`~/.config/hivemind/_identity.json` (the HiveMind `NodeIdentity` file).
 Populate it with:
 
 ```bash
