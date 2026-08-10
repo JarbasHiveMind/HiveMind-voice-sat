@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0a5](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a5) (2026-08-10)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a4...2.2.0a5)
+
+**Merged pull requests:**
+
+- docs: correct claims that no longer match the code [\#74](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/74) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [2.2.0a4](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a4) (2026-08-10)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a3...2.2.0a4)
