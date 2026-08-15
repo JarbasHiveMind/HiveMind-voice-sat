@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0a6](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a6) (2026-08-15)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a5...2.2.0a6)
+
+**Merged pull requests:**
+
+- docs: expand AGENTS.md with per-repo agent conventions [\#76](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/76) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [2.2.0a5](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a5) (2026-08-10)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a4...2.2.0a5)
