@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.1a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.1a1) (2026-09-01)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a6...2.2.1a1)
+
+**Merged pull requests:**
+
+- fix\(deps\): raise floor pins to proven HiveMind stack [\#78](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/78) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [2.2.0a6](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.0a6) (2026-08-15)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a5...2.2.0a6)
