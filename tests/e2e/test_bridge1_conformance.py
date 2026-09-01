@@ -35,6 +35,7 @@ from hivescope.assertions import (
     assert_source_stamped,
     assert_destination_routed,
     assert_session_inbound_preserved,
+    assert_session_id_natted,
     assert_session_outbound_preserved,
     assert_fifo_order,
     assert_session_propagated_unchanged,
@@ -200,10 +201,12 @@ def test_destination_routed():
 # ─────────────────────────────────────────────────────────────────────────────
 
 def test_session_inbound_preserved():
-    """Satellite's session fields are preserved into bus context.session.
+    """Satellite's session fields are preserved into bus context.session,
+    and its declared session_id is NATted to the connection's per-message
+    Layer-1 id (a non-admin's declared id is never used verbatim on the bus).
 
-    Spec: BRIDGE-1 §4.1 (inbound)
-    Helper: assert_session_inbound_preserved
+    Spec: BRIDGE-1 §4.1 (inbound) / §4 (per-connection session NAT)
+    Helpers: assert_session_inbound_preserved, assert_session_id_natted
     """
     b = _topology_with_utterance()
     b.start_all()
@@ -222,8 +225,9 @@ def test_session_inbound_preserved():
 
         assert_session_inbound_preserved(
             m, s,
-            expected_session={"session_id": sid, "lang": sess.serialize().get("lang")},
+            expected_session={"lang": sess.serialize().get("lang")},
         )
+        assert_session_id_natted(m, s, sid)
     finally:
         b.stop_all()
 
