@@ -18,12 +18,17 @@ Use voice-sat when the device has CPU/GPU to spare, bandwidth is limited, or aud
 ## Install
 
 ```bash
-pip install HiveMind-voice-sat
+pip install --pre HiveMind-voice-sat
 # Linux: ALSA or SoundDevice microphone support
-pip install HiveMind-voice-sat[linux]
+pip install --pre "HiveMind-voice-sat[linux]"
 # macOS
-pip install HiveMind-voice-sat[mac]
+pip install --pre "HiveMind-voice-sat[mac]"
 ```
+
+HiveMind-voice-sat is published as pre-releases, so pass `--pre`. Without it, pip
+installs the last stable release, 2.0.1, with an older OVOS listener and audio stack
+(ovos-dinkum-listener 0.5.0, ovos-audio 1.2.0) that does not match these docs. With
+uv, the same install is `uv pip install --prerelease=allow HiveMind-voice-sat`.
 
 ## 60-second quickstart
 
