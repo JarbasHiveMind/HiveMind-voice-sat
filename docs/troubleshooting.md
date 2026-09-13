@@ -71,11 +71,32 @@ For a CA-signed certificate that still fails: verify the system CA bundle is up 
    sudo usermod -aG audio $USER
    ```
 
+### `TypeError: 'NoneType' object is not callable` when the listener starts
+
+The base package installs no microphone plugin. The default configuration asks for
+`ovos-microphone-plugin-alsa`, and when no microphone plugin is installed the listener
+fails with this `TypeError`, which does not name the missing plugin. Install a
+microphone backend, for example with the `[linux]` or `[mac]` extra above.
+
+### A device with no audio hardware
+
+A test box or CI runner has no microphone. `ovos-microphone-plugin-files` reads WAV
+files instead: it watches `~/file_microphone`, reads each file dropped there as
+microphone input, and then deletes it.
+
+```bash
+pip install --pre ovos-microphone-plugin-files
+```
+
+```json
+{ "listener": { "microphone": { "module": "ovos-microphone-plugin-files" } } }
+```
+
 ---
 
 ## Wakeword not triggering
 
-1. The default wakeword plugin is `ovos-ww-plugin-vosk`. Verify it is installed:
+1. The wakeword plugin this package installs is `ovos-ww-plugin-vosk`. Verify it is installed:
    ```bash
    pip show ovos-ww-plugin-vosk
    ```
@@ -85,6 +106,14 @@ For a CA-signed certificate that still fails: verify the system CA bundle is up 
    ```json
    { "listener": { "continuous_listen": true } }
    ```
+5. `ImportError: Wake Word hey_mycroft_precise with module ovos-ww-plugin-precise failed to load`
+   at startup means the configuration names the precise plugin, which is not installed. The
+   stock OVOS configuration does this unless `mycroft.conf` sets `hey_mycroft` to
+   `ovos-ww-plugin-vosk` as in the [README](../README.md). OVOS then loads the vosk fallback,
+   so the wakeword can still work. Set the vosk module in `mycroft.conf` to stop the error.
+6. The vosk plugin downloads its language model from `alphacephei.com` on its first start.
+   A device with no internet access at that moment has no wakeword. Give it network access
+   for the first start, or copy the model into `~/.local/share/vosk/` beforehand.
 
 ---
 
