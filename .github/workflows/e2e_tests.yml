@@ -1,0 +1,22 @@
+name: E2E Tests
+
+# HiveMind-side end-to-end tests (tests/e2e/). These boot a REAL hivemind-core
+# hub (via hivescope's loopback WebSocket harness) and drive the REAL satellite
+# client over a real HiveMessageBusClient, mocking only the audio hardware
+# (microphone / STT / VAD / TTS are in-process fakes). They need the full alpha
+# `[e2e]` stack (hivescope + hivemind-core + ovos-* 2.x), which is pinned as
+# prerelease *minimums* in pyproject so pip resolves it with NO --pre. Runs in a
+# dedicated job so the heavy stack stays out of the build_tests matrix.
+
+on:
+  pull_request:
+    branches: [dev, master]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    uses: OpenVoiceOS/gh-automations/.github/workflows/build-tests.yml@dev
+    with:
+      python_versions: '["3.11"]'
+      install_extras: 'e2e'
+      test_path: 'tests/e2e/'
