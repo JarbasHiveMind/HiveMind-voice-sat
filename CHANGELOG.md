@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.2a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.2a1) (2026-09-13)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.1a1...2.2.2a1)
+
+**Merged pull requests:**
+
+- fix: keep the satellite's configuration sync off the hive [\#83](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/83) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.1a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.1a1) (2026-09-01)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.0a6...2.2.1a1)
