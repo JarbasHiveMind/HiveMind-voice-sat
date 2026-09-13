@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.3a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.3a1) (2026-09-13)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.2a2...2.2.3a1)
+
+**Merged pull requests:**
+
+- fix: surface hive.policy.denied to the satellite user [\#82](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/82) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.2a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.2a2) (2026-09-13)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.2a1...2.2.2a2)
