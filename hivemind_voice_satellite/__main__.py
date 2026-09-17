@@ -9,6 +9,7 @@ from ovos_utils import wait_for_exit_signal
 from ovos_utils.log import init_service_logger, LOG
 
 from hivemind_voice_satellite import VoiceClient
+from hivemind_voice_satellite.service import _keep_configuration_sync_local
 
 
 @click.command(help="connect to HiveMind")
@@ -94,6 +95,12 @@ def connect(host, key, password, port, selfsigned, siteid):
     except ImportError:
         print("PHAL is not available")
         phal = None
+
+    # Configuration.bus is process-global and the last bind wins. Bind the
+    # configuration sync to the internal bus again after every service has
+    # started, so a service that bound it to the HiveMind client cannot send
+    # configuration.patch to the hub.
+    _keep_configuration_sync_local(bus)
 
     wait_for_exit_signal()
 
