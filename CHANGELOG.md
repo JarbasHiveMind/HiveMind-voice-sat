@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.4a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.4a1) (2026-09-17)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.3a1...2.2.4a1)
+
+**Merged pull requests:**
+
+- fix: bind the configuration sync to the internal bus after every service [\#88](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/88) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.3a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.3a1) (2026-09-13)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.2a2...2.2.3a1)
