@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.5a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.5a1) (2026-09-18)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.4a1...2.2.5a1)
+
+**Merged pull requests:**
+
+- fix: end the process when the listener cannot recover [\#81](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/81) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.4a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.4a1) (2026-09-17)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.3a1...2.2.4a1)
