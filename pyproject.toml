@@ -18,7 +18,11 @@ dependencies = [
     # as the minimum version so pip resolves it without --pre.
     "hivemind-bus-client>=1.2.1a1",
     "ovos-bus-client>=2.9.1a1,<3.0.0",
-    "ovos-audio>=1.2.3a1,<2.0.0",
+    # ovos-audio 2.x listens on the spec topic (ovos.utterance.speak); the
+    # hub's legacy speak reaches it because the satellite's internal bus
+    # modernizes (tests/test_audio_namespace_bridge.py). The 2.0.0 cap kept
+    # the satellite off the alpha channel, whose constraints pin ovos-audio 2.x.
+    "ovos-audio>=1.2.3a1,<3.0.0",
     "ovos-dinkum-listener>=0.7.2a1,<1.0.0",
     # ovos-plugin-manager lifted its ovos-bus-client cap to <3.0.0 in 2.4.1a1;
     # stable 2.2.0 still caps <2.0.0, so the floor must be this prerelease for
