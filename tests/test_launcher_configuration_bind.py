@@ -27,6 +27,10 @@ class _Identity:
     default_master = "ws://127.0.0.1"
     default_port = 1
 
+    def __init__(self, app_name=None):
+        # the launcher names itself: NodeIdentity(app_name="voice-sat")
+        self.app_name = app_name
+
 
 class _Service:
     """A service that binds the configuration sync to the bus it gets, as

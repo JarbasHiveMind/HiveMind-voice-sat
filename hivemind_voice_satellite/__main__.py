@@ -22,7 +22,7 @@ from hivemind_voice_satellite.service import _keep_configuration_sync_local
 def connect(host, key, password, port, selfsigned, siteid):
     init_service_logger("HiveMind-voice-sat")
 
-    identity = NodeIdentity()
+    identity = NodeIdentity(app_name="voice-sat")
     password = password or identity.password
     key = key or identity.access_key
     siteid = siteid or identity.site_id or "unknown"
@@ -70,12 +70,15 @@ def connect(host, key, password, port, selfsigned, siteid):
         exit(1)
 
     # connect to hivemind
+    # identity= too: without it the client builds NodeIdentity() and presents
+    # the shared Noise and RSA keys under this application's access key
     bus = HiveMessageBusClient(key=key,
                                password=password,
                                port=port,
                                host=host,
                                useragent="VoiceSatelliteV0.3.0",
-                               self_signed=selfsigned)
+                               self_signed=selfsigned,
+                               identity=identity)
     bus.connect(site_id=siteid)
 
     # create Audio Output interface (TTS/Music)
