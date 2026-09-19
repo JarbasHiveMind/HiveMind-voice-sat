@@ -9,23 +9,25 @@ from ovos_utils import wait_for_exit_signal
 from ovos_utils.log import init_service_logger, LOG
 
 from hivemind_voice_satellite import VoiceClient
+from hivemind_voice_satellite.service import _keep_configuration_sync_local
 
 
 @click.command(help="connect to HiveMind")
 @click.option("--host", help="hivemind host", type=str, default="")
 @click.option("--key", help="Access Key", type=str, default="")
 @click.option("--password", help="Password for key derivation", type=str, default="")
-@click.option("--port", help="HiveMind port number", type=int, default=5678)
+@click.option("--port", help="HiveMind port number", type=int, required=False)
 @click.option("--selfsigned", help="accept self signed certificates", is_flag=True)
 @click.option("--siteid", help="location identifier for message.context", type=str, default="")
 def connect(host, key, password, port, selfsigned, siteid):
     init_service_logger("HiveMind-voice-sat")
 
-    identity = NodeIdentity()
+    identity = NodeIdentity(app_name="voice-sat")
     password = password or identity.password
     key = key or identity.access_key
     siteid = siteid or identity.site_id or "unknown"
     host = host or identity.default_master
+    port = port or identity.default_port or 5678
 
     if not password:
         LOG.info("starting hivemind-ggwave, waiting for audio password")
@@ -68,12 +70,15 @@ def connect(host, key, password, port, selfsigned, siteid):
         exit(1)
 
     # connect to hivemind
+    # identity= too: without it the client builds NodeIdentity() and presents
+    # the shared Noise and RSA keys under this application's access key
     bus = HiveMessageBusClient(key=key,
                                password=password,
                                port=port,
                                host=host,
                                useragent="VoiceSatelliteV0.3.0",
-                               self_signed=selfsigned)
+                               self_signed=selfsigned,
+                               identity=identity)
     bus.connect(site_id=siteid)
 
     # create Audio Output interface (TTS/Music)
@@ -93,6 +98,12 @@ def connect(host, key, password, port, selfsigned, siteid):
     except ImportError:
         print("PHAL is not available")
         phal = None
+
+    # Configuration.bus is process-global and the last bind wins. Bind the
+    # configuration sync to the internal bus again after every service has
+    # started, so a service that bound it to the HiveMind client cannot send
+    # configuration.patch to the hub.
+    _keep_configuration_sync_local(bus)
 
     wait_for_exit_signal()
 
