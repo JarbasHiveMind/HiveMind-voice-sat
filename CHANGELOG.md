@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.6a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.6a1) (2026-09-19)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.5a1...2.2.6a1)
+
+**Merged pull requests:**
+
+- fix: the satellite keeps its own HiveMind identity \(CRYPTO-1 §2\) [\#91](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/91) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.5a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.5a1) (2026-09-18)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.4a1...2.2.5a1)
