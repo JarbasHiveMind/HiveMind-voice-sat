@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.7a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.7a1) (2026-09-19)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.6a1...2.2.7a1)
+
+**Merged pull requests:**
+
+- fix: allow ovos-audio 2.x so the satellite resolves on the alpha channel [\#93](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/93) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.6a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.6a1) (2026-09-19)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.5a1...2.2.6a1)
