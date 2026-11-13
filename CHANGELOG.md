@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.7a2](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.7a2) (2026-11-13)
+
+[Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.7a1...2.2.7a2)
+
+**Merged pull requests:**
+
+- ci: build\_tests collects the whole tests/ directory [\#95](https://github.com/JarbasHiveMind/HiveMind-voice-sat/pull/95) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [2.2.7a1](https://github.com/JarbasHiveMind/HiveMind-voice-sat/tree/2.2.7a1) (2026-09-19)
 
 [Full Changelog](https://github.com/JarbasHiveMind/HiveMind-voice-sat/compare/2.2.6a1...2.2.7a1)
